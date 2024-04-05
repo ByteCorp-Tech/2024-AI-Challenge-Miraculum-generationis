@@ -8,17 +8,16 @@ GITHUB_ACCESS_TOKEN=os.getenv("GITHUB_ACCESS_TOKEN")
 g = Github(GITHUB_ACCESS_TOKEN)
 
 def get_repo_data(repo):
-    # Basic repository info
     repo_data = {
         'name': repo.name,
         'description': repo.description,
         'url': repo.html_url,
         'branches': [],
-        'issues': []  # Add an empty list for issues
+        'issues': [] 
     }
 
-    # Fetch and add issues to repo_data
-    for issue in repo.get_issues(state='all'):  # Fetch all issues, both open and closed
+
+    for issue in repo.get_issues(state='all'): 
         issue_data = {
             'title': issue.title,
             'number': issue.number,
@@ -30,15 +29,15 @@ def get_repo_data(repo):
         }
         repo_data['issues'].append(issue_data)
 
-    # Branches and commits
+
     for branch in repo.get_branches():
         branch_data = {
             'name': branch.name,
             'commits': []
         }
         
-        # List commits for each branch - limit set for demonstration purposes
-        for commit in repo.get_commits(sha=branch.commit.sha):  # Adjust as needed
+
+        for commit in repo.get_commits(sha=branch.commit.sha):
             commit_data = {
                 'sha': commit.sha,
                 'message': commit.commit.message,
@@ -53,7 +52,7 @@ def get_repo_data(repo):
     return repo_data
 
 
-# Main function to get data for all repositories
+
 def get_github_data():
     all_repos_data = []
     
@@ -65,6 +64,6 @@ def get_github_data():
 
 github_corpus = get_github_data()
 
-# Save the corpus to a JSON file
+
 with open('github_corpus.json', 'w',encoding="utf-8") as f:
     json.dump(github_corpus, f, indent=4)

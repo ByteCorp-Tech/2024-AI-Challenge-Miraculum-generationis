@@ -3,15 +3,14 @@ import os
 import json
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# JIRA credentials and server details
+
 JIRA_USERNAME = os.getenv("JIRA_USERNAME")
 JIRA_INSTANCE_URL = os.getenv("JIRA_INSTANCE_URL")
 JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
 
-# Initialize JIRA client
+
 jira = JIRA(server=JIRA_INSTANCE_URL, basic_auth=(JIRA_USERNAME, JIRA_API_TOKEN))
 
 def create_corpus():

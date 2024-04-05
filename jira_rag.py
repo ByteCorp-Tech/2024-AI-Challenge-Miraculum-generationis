@@ -28,11 +28,11 @@ def get_vector_store(text, embeddings):
     knowledgeBase = FAISS.from_texts(chunks, embeddings)
     return knowledgeBase
 
-# Load and prepare the corpus
+
 corpus = load_corpus()
 text = flatten_corpus(corpus)
 
-# Initialize necessary components
+
 embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 vector_store = get_vector_store(text, embeddings)
