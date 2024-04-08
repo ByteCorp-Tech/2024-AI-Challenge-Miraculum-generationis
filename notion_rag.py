@@ -16,81 +16,85 @@ langchain.verbose=True
 langchain.debug=True
 
 
+keys_to_remove = [
+    "id", "color", "type", "link", "href", "public_url", "object",
+    "database_id", "icon", "cover", "bold", "italic", "strikethrough",
+    "underline", "code", "archived", "last_edited_time", "created_by",
+    "parent", "relation", "has_more", "Sub-item","has_children","last_edited_by","annotations","is_toggleable",
+    "url","divider","toggle","file",'created_time',"unsupported"
+
+]
+
 def load_corpus(file_path='notion_corpus.json'):
     with open(file_path, 'r',encoding="utf-8") as f:
         return json.load(f)
+    
+def remove_keys_from_dict(d, keys):
+    if isinstance(d, dict):
+        return {k: remove_keys_from_dict(v, keys) for k, v in d.items() if k not in keys}
+    elif isinstance(d, list):
+        return [remove_keys_from_dict(v, keys) for v in d]
+    else:
+        return d
+    
 
+def parse_value(v, new_key):
+    if isinstance(v, dict):
+        # Only parse non-empty dictionaries
+        return parse_dict(v, new_key) if v else None
+    elif isinstance(v, list):
+        # Process each item in the list, removing empty ones
+        processed_items = [item for item in map(lambda x: parse_value(x, ''), v) if item]
+        # Join the non-empty items with commas and only return if there's something to show
+        return f"{new_key}:[{','.join(processed_items)}]" if processed_items else None
+    elif v:  # Check if value is not an empty string
+        return f"{new_key}:{v}"
+    # Exclude empty strings, empty lists, and empty dicts
+    return None
 
-
-
-
-
+def parse_dict(d, parent_key=''):
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}:{k}" if parent_key else k
+        item = parse_value(v, new_key)
+        if item:
+            items.append(item)
+    return ','.join(filter(None, items))
 
 def get_vector_store(text, embeddings):
-    text_splitter = CharacterTextSplitter(separator=',', chunk_size=1000, chunk_overlap=100, length_function=len)
+    text_splitter = CharacterTextSplitter(separator='\n', chunk_size=2000, chunk_overlap=100, length_function=len)
     chunks = text_splitter.split_text(text)
     knowledgeBase = FAISS.from_texts(chunks, embeddings)
     return knowledgeBase
 
 
 
-
 corpus = load_corpus()
-text = json.dumps(corpus, ensure_ascii=False, indent=None)
+cleaned_data = remove_keys_from_dict(corpus, keys_to_remove)
+formatted_data = [parse_dict(page) for page in cleaned_data]
+text=""
 
-
+for data in formatted_data:
+    text=text+data+"\n"
 
 
 
 embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 vector_store = get_vector_store(text, embeddings)
-# prompt = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. When a user refers to an issue they will be labelled in context by Issue:. When a user refers to a commit 
-# they will be labelled by Commit:.The issues witll have a repo_name key which will connect them to a repository .The commits will have a branch_name key which will connect them to a branch and a repo_name
-# key which will connect them to a repository.Format the output According to the Output Format given below.
-
-# Output Format In Case of An Issue:
-# Repo Name: (repo name)
-# Repo Description: (repo description)                                          
-# Issue Title: (issue title)
-# issue_number: (issue number)
-# issue_state: (issue state)                                          
-# created_at: (created at)
-# updated_at: (updated at)
-# issue_body: (issue body)
-
-                                          
-# Output Format In Case of A Commit:
-# Repo Name: (repo name)
-# repo_description: (repo description)                                          
-# branch_name: (branch name)
-# commit_message: (commit message)
-# commit_date: (commit date)
-# commit_author: (commit author)                                          
 
 
-# Context:
-# {context}
-
-                                        
-                             
-# Based on the context above,
-# Question: {input}
-
-# """)
 prompt = ChatPromptTemplate.from_template("""Answer the questions based on the context provided.
-                                        
-
-
 Context:
 {context}
 
-                                        
-                             
+                                                                    
 Based on the context above,
 Question: {input}
 
 """)
+
+
 document_chain = create_stuff_documents_chain(llm, prompt)
 retriever = vector_store.as_retriever()
 retrieval_chain = create_retrieval_chain(retriever, document_chain)
