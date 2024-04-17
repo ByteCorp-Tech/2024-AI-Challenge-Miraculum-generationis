@@ -84,5 +84,7 @@ if st.button("Send"):
         answer, context = query_assistant(user_input)
         st.text_area("Answer:", value=answer, height=100, key="bot_response")
         if show_context:
+            for doc in context:
+                print(doc)
             st.markdown("### Source")
             st.write(context)  # Properly format and display context here
