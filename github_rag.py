@@ -72,39 +72,7 @@ text=flatten_repo_data(corpus)
 embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 vector_store = get_vector_store(text, embeddings)
-# prompt = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. When a user refers to an issue they will be labelled in context by Issue:. When a user refers to a commit 
-# they will be labelled by Commit:.The issues witll have a repo_name key which will connect them to a repository .The commits will have a branch_name key which will connect them to a branch and a repo_name
-# key which will connect them to a repository.Format the output According to the Output Format given below.
 
-# Output Format In Case of An Issue:
-# Repo Name: (repo name)
-# Repo Description: (repo description)                                          
-# Issue Title: (issue title)
-# issue_number: (issue number)
-# issue_state: (issue state)                                          
-# created_at: (created at)
-# updated_at: (updated at)
-# issue_body: (issue body)
-
-                                          
-# Output Format In Case of A Commit:
-# Repo Name: (repo name)
-# repo_description: (repo description)                                          
-# branch_name: (branch name)
-# commit_message: (commit message)
-# commit_date: (commit date)
-# commit_author: (commit author)                                          
-
-
-# Context:
-# {context}
-
-                                        
-                             
-# Based on the context above,
-# Question: {input}
-
-# """)
 prompt = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. When a user refers to an issue they will be labelled in context by Issue:. When a user refers to a commit 
 they will be labelled by Commit:.The issues witll have a repo_name key which will connect them to a repository .The commits will have a branch_name key which will connect them to a branch and a repo_name
 key which will connect them to a repository. Only answer whatever information the user asks do not give whole issues or commits as response.
@@ -129,7 +97,7 @@ def query_assistant(input):
     return response["answer"]
 
 def main():
-    st.title("GITHUB RAG UI")
+    st.title("GITHUB ASSISTANT")
     user_input = st.text_input("Ask your question:", "")
     if st.button("Send"):
         if user_input:

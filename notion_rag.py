@@ -104,7 +104,7 @@ def query_assistant(input):
     return response["answer"]
 
 def main():
-    st.title("NOTION RAG UI")
+    st.title("NOTION ASSISTANT")
     user_input = st.text_input("Ask your question:", "")
     if st.button("Send"):
         if user_input:

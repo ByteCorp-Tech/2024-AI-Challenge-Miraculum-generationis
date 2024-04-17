@@ -37,21 +37,10 @@ embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 vector_store = get_vector_store(text, embeddings)
 prompt = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. When a user refers to an issue or a ticket they will be labelled in context by Issue/Ticket:. When a user refers to a comment 
-they will be labelled by Comment:. The comments will also have an issue key which will connect them to a ticket/issue.Format the output According to the Output Format given below.A new line in format will be referenced by
+they will be labelled by Comment:. The comments will also have an issue key which will connect them to a ticket/issue.
 (newline).
 
-Output Format In Case of An Issue/Ticket:
-Project Key: (project key)
-Issue Key: (issue key)
-Issue Summary: (issue summary)
-Issue Type: (issue type)
-Issue Status: (issue status)
 
-Output Format In Case of A Comment:
-Issue Key: (issue key)
-Comment ID: (comment id)
-Author: (author)
-Body: (body)
                                                                                                                                                                                                                                                                                                                                                                                        
 
 Context:
@@ -72,7 +61,7 @@ def query_assistant(input):
     return response["answer"]
 
 def main():
-    st.title("JIRA UI")
+    st.title("JIRA Assistant")
     user_input = st.text_input("Ask your question:", "")
     if st.button("Send"):
         if user_input:
