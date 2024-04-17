@@ -12,10 +12,8 @@ def fetch_block_children(block_id, notion):
     block_children = notion.blocks.children.list(block_id=block_id)["results"]
     content = []
     for block in block_children:
-        # Include the entire block information
         content.append(block)
         if "has_children" in block and block["has_children"]:
-            # Recursively fetch children blocks and include their data
             block["children"] = fetch_block_children(block["id"], notion)
     return content
 
@@ -25,9 +23,9 @@ def fetch_all_pages(notion):
     query_results = notion.search(filter={"value": "page", "property": "object"})["results"]
 
     for page in query_results:
-        page_details = {"page_data": page}  # Include the entire page information
+        page_details = {"page_data": page}  
         page_id = page["id"]
-        page_details["content"] = fetch_block_children(page_id, notion)  # Include all block data
+        page_details["content"] = fetch_block_children(page_id, notion)  
         pages.append(page_details)
 
     return pages
@@ -41,5 +39,5 @@ def create_corpus(notion):
 corpus = create_corpus(notion)
 
 # Save the corpus to a JSON file
-with open("notion_corpus.json", "w", encoding="utf-8") as f:
+with open("corpus/notion_corpus.json", "w", encoding="utf-8") as f:
     json.dump(corpus, f, ensure_ascii=False, indent=4)

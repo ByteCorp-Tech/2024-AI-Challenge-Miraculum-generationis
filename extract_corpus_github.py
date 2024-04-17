@@ -65,5 +65,5 @@ def get_github_data():
 github_corpus = get_github_data()
 
 
-with open('github_corpus.json', 'w',encoding="utf-8") as f:
+with open('corpus/github_corpus.json', 'w',encoding="utf-8") as f:
     json.dump(github_corpus, f, indent=4)

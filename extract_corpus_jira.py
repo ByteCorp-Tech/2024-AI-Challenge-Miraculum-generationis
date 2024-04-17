@@ -45,6 +45,6 @@ def create_corpus():
 
 if __name__ == "__main__":
     corpus = create_corpus()
-    with open('jira_corpus.json', 'w', encoding='utf-8') as f:
+    with open('corpus/jira_corpus.json', 'w', encoding='utf-8') as f:
         json.dump(corpus, f, ensure_ascii=False, indent=4)
     print("Corpus has been extracted and saved.")
