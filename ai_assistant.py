@@ -12,7 +12,9 @@ from langchain.chains import create_retrieval_chain
 from github_helper_functions import flatten_repo_data
 from jira_helper_functions import flatten_corpus
 from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
+from langchain_openai.llms import OpenAI
 import langchain
+
 
 load_dotenv()
 
@@ -39,11 +41,11 @@ github_text = flatten_repo_data(github_corpus)
 
 
 # Streamlit interface setup
+st.set_page_config(layout="wide")
 st.title("AI Assistant")
 toggle_notion = st.sidebar.checkbox("Notion", True)
 toggle_jira = st.sidebar.checkbox("JIRA", True)
 toggle_github = st.sidebar.checkbox("GitHub", True)
-show_context = st.sidebar.checkbox("Show Source", False)
 
 active_texts = []
 if toggle_notion:
@@ -57,36 +59,62 @@ combined_text = "\n".join(active_texts)
 
 embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
-text_splitter = CharacterTextSplitter(separator="\n", chunk_size=2000, chunk_overlap=100, length_function=len)
+text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len)
 chunks = text_splitter.split_text(combined_text)
 vector_store = FAISS.from_texts(chunks, embeddings)
 
-prompt_template = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. For every information you provide in answer, if theres a 
-                                                   link/url with it provide it in the answer 
+prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. 
+Context:
+{context}
+
+Based on the context above answer the question.,
+Question: {input}.
+""")
+
+
+prompt_template_url = ChatPromptTemplate.from_template("""You are a url extractor. Whenever a user asks a question your job not to answer the question but
+                                                       to extract the urls for the intended answer. Extract urls for intended issues/tickets/commits/notion pages 
+                                                       from which the answer is supposed to be 
 Context:
 {context}
 
 Based on the context above,
-Question: {input}. provide urls separately in answer too for every commit/issue/ticket/page you pull information from. Output in a json format like this:
-                                                   "body":"(Complete body of the answer and if there are key/value pairs each key/value pair should be separated by commas)","url":"(a list of urls for commit/issue/ticket/page of the answer. if answer is from single source then provide one url)"
+Question: {input}. Provide a list of urls or a single url for issue/ticket/commit/notion page if applicable otherwise return an empty list. The list should be like the following format:
+                                                       ["url1","url2"]
 """)
+document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+retriever_body = vector_store.as_retriever()
+retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
 
-document_chain = create_stuff_documents_chain(llm, prompt_template)
-retriever = vector_store.as_retriever()
-retrieval_chain = create_retrieval_chain(retriever, document_chain)
+document_chain_url = create_stuff_documents_chain(llm, prompt_template_url)
+retriever_url = vector_store.as_retriever()
+retrieval_chain_url = create_retrieval_chain(retriever_url, document_chain_url)
 
-def query_assistant(input):
-    response = retrieval_chain.invoke({"input": input})
-    context = response.get("context", "No context available.")
-    return response["answer"], context
+def query_assistant_body(input):
+    response = retrieval_chain_body.invoke({"input": input})
+    context=response.get("context","No context available")
+    print(context)
+    return response["answer"]
+
+def query_assistant_url(input):
+    response = retrieval_chain_url.invoke({"input": input})
+    return response["answer"]
 
 user_input = st.text_input("Ask your question:", "")
 if st.button("Send"):
     if user_input:
-        answer, context = query_assistant(user_input)
-        st.text_area("Answer:", value=answer, height=100, key="bot_response")
-        if show_context:
-            for doc in context:
-                print(doc)
-            st.markdown("### Source")
-            st.write(context)  # Properly format and display context here
+        answer = query_assistant_body(user_input)
+        urls=query_assistant_url(user_input)
+        urls=json.loads(urls)
+        links = []
+        for url in urls:
+            links.append(f"[{url}]({url})\n")
+        answer = answer.replace(",","\n")
+        st.text_area("Answer:", value=answer, height=300, key="bot_response")
+        if links:
+            st.markdown("### Related Links")
+            st.markdown("\n".join(links))
+        else:
+            st.markdown("### Related Links")
+            st.markdown("No relevant links found.")
+        
