@@ -61,12 +61,14 @@ text_splitter = CharacterTextSplitter(separator="\n", chunk_size=2000, chunk_ove
 chunks = text_splitter.split_text(combined_text)
 vector_store = FAISS.from_texts(chunks, embeddings)
 
-prompt_template = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. 
+prompt_template = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. For every information you provide in answer, if theres a 
+                                                   link/url with it provide it in the answer 
 Context:
 {context}
 
 Based on the context above,
-Question: {input}
+Question: {input}. provide urls separately in answer too for every commit/issue/ticket/page you pull information from. Output in a json format like this:
+                                                   "body":"(Complete body of the answer and if there are key/value pairs each key/value pair should be separated by commas)","url":"(a list of urls for commit/issue/ticket/page of the answer. if answer is from single source then provide one url)"
 """)
 
 document_chain = create_stuff_documents_chain(llm, prompt_template)

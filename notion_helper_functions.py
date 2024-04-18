@@ -7,8 +7,7 @@ keys_to_remove = [
     "id", "color", "type", "link", "href", "public_url", "object",
     "database_id", "icon", "cover", "bold", "italic", "strikethrough",
     "underline", "code", "archived", "last_edited_time", "created_by",
-    "parent", "relation", "has_more", "Sub-item","has_children","last_edited_by","annotations","is_toggleable",
-    "url","divider","toggle","file",'created_time',"unsupported"
+    "parent", "relation", "has_more", "Sub-item","has_children","last_edited_by","annotations","is_toggleable","divider","toggle","file",'created_time',"unsupported"
 
 ]
 

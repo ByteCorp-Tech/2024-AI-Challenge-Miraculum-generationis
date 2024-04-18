@@ -24,6 +24,7 @@ def flatten_repo_data(all_repos_data):
                 f"issue_state:{issue['state']}",
                 f"created_at:{issue['created_at']}",
                 f"updated_at:{issue['updated_at']}",
+                f"url:{issue['url']}",
             ]
             lines.append(','.join(issue_line))
 
@@ -38,7 +39,8 @@ def flatten_repo_data(all_repos_data):
                     branch_name,
                     f"commit_message:{commit_message_cleaned}",
                     f"commit_date:{commit['date']}",
-                    f"commit_author:{commit['author']}"
+                    f"commit_author:{commit['author']}",
+                    f"url:{commit['url']}"
                 ]
                 lines.append(','.join(commit_line))
     text = "\n".join(lines)
