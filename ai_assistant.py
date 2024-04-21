@@ -2,9 +2,9 @@ import streamlit as st
 import json
 from dotenv import load_dotenv
 import openai
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -12,10 +12,9 @@ from langchain.chains import create_retrieval_chain
 from github_helper_functions import flatten_repo_data
 from jira_helper_functions import flatten_corpus
 from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
-from langchain_openai.llms import OpenAI
-from langchain.chat_models import ChatOpenAI
 import langchain
-
+from langchain_openai import ChatOpenAI
+FAISS.allow_dangerous_deserialization = True
 
 load_dotenv()
 
@@ -25,36 +24,57 @@ load_dotenv()
 
 embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
-
+# llm = ChatOpenAI(model="gpt-4", temperature=0)
 
 # Streamlit interface setup
 st.set_page_config(layout="wide")
 st.title("AI Assistant")
-toggle_notion = st.sidebar.checkbox("Notion", True)
-toggle_jira = st.sidebar.checkbox("JIRA", True)
-toggle_github = st.sidebar.checkbox("GitHub", True)
+def on_change():
+    st.session_state["checked_state"] = (st.session_state.toggle_notion, st.session_state.toggle_jira, st.session_state.toggle_github)
 
+# Initialize session state variables if they don't exist
+if "checked_state" not in st.session_state:
+    st.session_state["checked_state"] = (True, True, True)
 
-if toggle_github and toggle_notion and toggle_jira:
-    vector_store = FAISS.load_local("embeddings/github_notion_jijra", embeddings)
+if "toggle_notion" not in st.session_state:
+    st.session_state["toggle_notion"] = True
+if "toggle_jira" not in st.session_state:
+    st.session_state["toggle_jira"] = True
+if "toggle_github" not in st.session_state:
+    st.session_state["toggle_github"] = True
 
-elif toggle_jira and toggle_github:
-    vector_store = FAISS.load_local("embeddings/jira_github", embeddings)
+# Define the checkboxes
+st.sidebar.checkbox("Notion", value=st.session_state.toggle_notion, on_change=on_change, key="toggle_notion")
+st.sidebar.checkbox("JIRA", value=st.session_state.toggle_jira, on_change=on_change, key="toggle_jira")
+st.sidebar.checkbox("GitHub", value=st.session_state.toggle_github, on_change=on_change, key="toggle_github")
 
-elif toggle_notion and toggle_github:
-    vector_store = FAISS.load_local("embeddings/notion_github", embeddings)
+if st.session_state["checked_state"] == (True, True, True):
+    print("all 3")
+    vector_store = FAISS.load_local("embeddings/github_notion_jira", embeddings, allow_dangerous_deserialization=True)
 
-elif toggle_notion and toggle_jira:
-    vector_store = FAISS.load_local("embeddings/notion_jira", embeddings)
+elif st.session_state["checked_state"][1] and st.session_state["checked_state"][2]:
+    print("jira and github")
+    vector_store = FAISS.load_local("embeddings/jira_github", embeddings, allow_dangerous_deserialization=True)
 
-elif toggle_github:
-    vector_store = FAISS.load_local("embeddings/github", embeddings)
+elif st.session_state["checked_state"][0] and st.session_state["checked_state"][2]:
+    print("notion and github")
+    vector_store = FAISS.load_local("embeddings/notion_github", embeddings, allow_dangerous_deserialization=True)
 
-elif toggle_jira:
-    vector_store = FAISS.load_local("embeddings/jira", embeddings)
+elif st.session_state["checked_state"][0] and st.session_state["checked_state"][1]:
+    print("notion and jira")
+    vector_store = FAISS.load_local("embeddings/notion_jira", embeddings, allow_dangerous_deserialization=True)
 
-elif toggle_notion:
-    vector_store = FAISS.load_local("embeddings/notion", embeddings)
+elif st.session_state["checked_state"][2]:
+    print("only github")
+    vector_store = FAISS.load_local("embeddings/github", embeddings, allow_dangerous_deserialization=True)
+
+elif st.session_state["checked_state"][1]:
+    print("only jira")
+    vector_store = FAISS.load_local("embeddings/jira", embeddings, allow_dangerous_deserialization=True)
+
+elif st.session_state["checked_state"][0]:
+    print("only notion")
+    vector_store = FAISS.load_local("embeddings/notion", embeddings, allow_dangerous_deserialization=True)
 
 
 prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. 

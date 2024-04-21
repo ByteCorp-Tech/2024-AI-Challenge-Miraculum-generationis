@@ -5,7 +5,7 @@ import openai
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain import FAISS
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter,RecursiveJsonSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
@@ -44,7 +44,7 @@ notion_github_text='\n'.join([notion_text, github_text])
 
 def save_embeddings(text,name):
     embeddings = OpenAIEmbeddings()
-    text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len)
+    text_splitter = CharacterTextSplitter(separator="\n", chunk_size=500, chunk_overlap=100, length_function=len)
     chunks = text_splitter.split_text(text)
     vector_store = FAISS.from_texts(chunks, embeddings)
     vector_store.save_local(f"embeddings/{name}")
