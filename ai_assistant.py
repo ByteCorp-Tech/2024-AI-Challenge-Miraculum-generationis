@@ -13,31 +13,18 @@ from github_helper_functions import flatten_repo_data
 from jira_helper_functions import flatten_corpus
 from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
 from langchain_openai.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 import langchain
 
 
 load_dotenv()
 
-# Load and process Notion corpus
-def load_corpus(file_path):
-    with open(file_path, 'r', encoding="utf-8") as f:
-        return json.load(f)
 
 
 
-notion_corpus = load_corpus('corpus/notion_corpus.json')
-notion_cleaned = remove_keys_from_dict(notion_corpus, keys_to_remove)
-notion_text = '\n'.join([parse_dict(page) for page in notion_cleaned])
 
-jira_corpus = load_corpus('corpus/jira_corpus.json')
-jira_text = flatten_corpus(jira_corpus)
-
-
-github_corpus = load_corpus('corpus/github_corpus.json')
-github_text = flatten_repo_data(github_corpus)
-
-
-
+embeddings = OpenAIEmbeddings()
+llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 
 
 # Streamlit interface setup
@@ -47,21 +34,28 @@ toggle_notion = st.sidebar.checkbox("Notion", True)
 toggle_jira = st.sidebar.checkbox("JIRA", True)
 toggle_github = st.sidebar.checkbox("GitHub", True)
 
-active_texts = []
-if toggle_notion:
-    active_texts.append(notion_text)
-if toggle_jira:
-    active_texts.append(jira_text)
-if toggle_github:
-    active_texts.append(github_text)
 
-combined_text = "\n".join(active_texts)
+if toggle_github and toggle_notion and toggle_jira:
+    vector_store = FAISS.load_local("embeddings/github_notion_jijra", embeddings)
 
-embeddings = OpenAIEmbeddings()
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
-text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len)
-chunks = text_splitter.split_text(combined_text)
-vector_store = FAISS.from_texts(chunks, embeddings)
+elif toggle_jira and toggle_github:
+    vector_store = FAISS.load_local("embeddings/jira_github", embeddings)
+
+elif toggle_notion and toggle_github:
+    vector_store = FAISS.load_local("embeddings/notion_github", embeddings)
+
+elif toggle_notion and toggle_jira:
+    vector_store = FAISS.load_local("embeddings/notion_jira", embeddings)
+
+elif toggle_github:
+    vector_store = FAISS.load_local("embeddings/github", embeddings)
+
+elif toggle_jira:
+    vector_store = FAISS.load_local("embeddings/jira", embeddings)
+
+elif toggle_notion:
+    vector_store = FAISS.load_local("embeddings/notion", embeddings)
+
 
 prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. 
 Context:
@@ -79,7 +73,7 @@ Context:
 {context}
 
 Based on the context above,
-Question: {input}. Provide a list of urls or a single url for issue/ticket/commit/notion page if applicable otherwise return an empty list. The list should be like the following format:
+Question: {input}. For the question do not actually answer the question, just provide the urls for the intended answer. Provide a list of urls or a single url for issue/ticket/commit/notion page if applicable otherwise return an empty list. The list should be like the following format:
                                                        ["url1","url2"]
 """)
 document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
