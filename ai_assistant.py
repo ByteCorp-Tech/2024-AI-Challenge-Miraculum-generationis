@@ -93,7 +93,9 @@ Context:
 {context}
 
 Based on the context above,
-Question: {input}. For the question do not actually answer the question, just provide the urls for the intended answer. Provide a list of urls or a single url for issue/ticket/commit/notion page if applicable otherwise return an empty list. The list should be like the following format:
+Question: {input}. For the question do not actually answer the question, just provide the urls for the intended answer.
+                                                        Provide a list of urls or a single url for issue/ticket/commit/notion page if applicable otherwise return an empty list.
+                                                        The list should be like the following format:
                                                        ["url1","url2"]
 """)
 document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
