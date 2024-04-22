@@ -26,13 +26,13 @@ embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 # llm = ChatOpenAI(model="gpt-4", temperature=0)
 
-# Streamlit interface setup
+
 st.set_page_config(layout="wide")
 st.title("AI Assistant")
 def on_change():
     st.session_state["checked_state"] = (st.session_state.toggle_notion, st.session_state.toggle_jira, st.session_state.toggle_github)
 
-# Initialize session state variables if they don't exist
+
 if "checked_state" not in st.session_state:
     st.session_state["checked_state"] = (True, True, True)
 
