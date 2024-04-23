@@ -15,7 +15,9 @@ from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_re
 import langchain
 from langchain_openai import ChatOpenAI
 FAISS.allow_dangerous_deserialization = True
-
+import tempfile
+import fitz
+import os
 load_dotenv()
 
 
@@ -30,8 +32,23 @@ llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 st.set_page_config(layout="wide")
 st.title("AI Assistant")
 def on_change():
+    if st.session_state.toggle_notion or st.session_state.toggle_jira or st.session_state.toggle_github:
+        st.session_state.upload_file = False
     st.session_state["checked_state"] = (st.session_state.toggle_notion, st.session_state.toggle_jira, st.session_state.toggle_github)
 
+
+
+def on_file_upload_change():
+    if st.session_state.upload_file:
+        st.session_state.toggle_notion = False
+        st.session_state.toggle_jira = False
+        st.session_state.toggle_github = False
+    st.session_state["checked_state"] = (st.session_state.toggle_notion, st.session_state.toggle_jira, st.session_state.toggle_github)
+
+
+
+if "upload_file" not in st.session_state:
+    st.session_state.upload_file = False
 
 if "checked_state" not in st.session_state:
     st.session_state["checked_state"] = (True, True, True)
@@ -43,12 +60,36 @@ if "toggle_jira" not in st.session_state:
 if "toggle_github" not in st.session_state:
     st.session_state["toggle_github"] = True
 
-# Define the checkboxes
-st.sidebar.checkbox("Notion", value=st.session_state.toggle_notion, on_change=on_change, key="toggle_notion")
-st.sidebar.checkbox("JIRA", value=st.session_state.toggle_jira, on_change=on_change, key="toggle_jira")
-st.sidebar.checkbox("GitHub", value=st.session_state.toggle_github, on_change=on_change, key="toggle_github")
+st.sidebar.checkbox("Upload File", value=st.session_state.upload_file, on_change=on_file_upload_change, key="upload_file")
+st.sidebar.checkbox("Notion", value=st.session_state.toggle_notion, on_change=on_change, key="toggle_notion", disabled=st.session_state.upload_file)
+st.sidebar.checkbox("JIRA", value=st.session_state.toggle_jira, on_change=on_change, key="toggle_jira", disabled=st.session_state.upload_file)
+st.sidebar.checkbox("GitHub", value=st.session_state.toggle_github, on_change=on_change, key="toggle_github", disabled=st.session_state.upload_file)
 
-if st.session_state["checked_state"] == (True, True, True):
+def extract_text_from_pdf(pdf_path):
+    doc = fitz.open(pdf_path)
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    return text
+
+
+
+if st.session_state.upload_file:
+    uploaded_file = st.file_uploader("Upload your file", type=["pdf"])
+    print("PDF Mode")
+    if uploaded_file is not None:
+        file_path = uploaded_file.name
+        print(file_path)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getvalue())
+        text = extract_text_from_pdf(file_path)
+        os.remove(file_path)
+        embeddings = OpenAIEmbeddings()
+        text_splitter = CharacterTextSplitter(separator="\n", chunk_size=500, chunk_overlap=100, length_function=len)
+        chunks = text_splitter.split_text(text)
+        vector_store = FAISS.from_texts(chunks, embeddings)
+        
+elif st.session_state["checked_state"] == (True, True, True):
     print("all 3")
     vector_store = FAISS.load_local("embeddings/github_notion_jira", embeddings, allow_dangerous_deserialization=True)
 
@@ -81,7 +122,8 @@ prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions 
 Context:
 {context}
 
-Based on the context above answer the question.,
+Based on the context above answer the question.You are not supposed to answer outside of the context in any condition as this will have serious repurcussions. Just reply that you dont know if the context does not
+                                                        the answer to the question
 Question: {input}.
 """)
 
@@ -98,13 +140,18 @@ Question: {input}. For the question do not actually answer the question, just pr
                                                         The list should be like the following format:
                                                        ["url1","url2"]
 """)
-document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
-retriever_body = vector_store.as_retriever()
-retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
 
-document_chain_url = create_stuff_documents_chain(llm, prompt_template_url)
-retriever_url = vector_store.as_retriever()
-retrieval_chain_url = create_retrieval_chain(retriever_url, document_chain_url)
+try:
+    document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+    retriever_body = vector_store.as_retriever()
+    retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+
+    document_chain_url = create_stuff_documents_chain(llm, prompt_template_url)
+    retriever_url = vector_store.as_retriever()
+    retrieval_chain_url = create_retrieval_chain(retriever_url, document_chain_url)
+
+except:
+    print("Waiting for file upload")
 
 def query_assistant_body(input):
     response = retrieval_chain_body.invoke({"input": input})
@@ -120,17 +167,19 @@ user_input = st.text_input("Ask your question:", "")
 if st.button("Send"):
     if user_input:
         answer = query_assistant_body(user_input)
-        urls=query_assistant_url(user_input)
-        urls=json.loads(urls)
-        links = []
-        for url in urls:
-            links.append(f"[{url}]({url})\n")
-        answer = answer.replace(",","\n")
+        if not st.session_state.upload_file:
+            urls=query_assistant_url(user_input)
+            urls=json.loads(urls)
+            links = []
+            for url in urls:
+                links.append(f"[{url}]({url})\n")
+            if links:
+                st.markdown("### Related Links")
+                st.markdown("\n".join(links))
+            else:
+                st.markdown("### Related Links")
+                st.markdown("No relevant links found.")
+            answer = answer.replace(",","\n")
         st.text_area("Answer:", value=answer, height=300, key="bot_response")
-        if links:
-            st.markdown("### Related Links")
-            st.markdown("\n".join(links))
-        else:
-            st.markdown("### Related Links")
-            st.markdown("No relevant links found.")
+        
         
