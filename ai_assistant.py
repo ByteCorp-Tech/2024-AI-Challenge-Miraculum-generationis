@@ -6,7 +6,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_core.prompts import ChatPromptTemplate
+
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from github_helper_functions import flatten_repo_data
@@ -18,6 +18,7 @@ FAISS.allow_dangerous_deserialization = True
 import tempfile
 import fitz
 import os
+from prompts import prompt_template_body, prompt_template_url
 load_dotenv()
 
 
@@ -118,28 +119,6 @@ elif st.session_state["checked_state"][0]:
     vector_store = FAISS.load_local("embeddings/notion", embeddings, allow_dangerous_deserialization=True)
 
 
-prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. 
-Context:
-{context}
-
-Based on the context above answer the question.You are not supposed to answer outside of the context in any condition as this will have serious repurcussions. Just reply that you dont know if the context does not
-                                                        the answer to the question
-Question: {input}.
-""")
-
-
-prompt_template_url = ChatPromptTemplate.from_template("""You are a url extractor. Whenever a user asks a question your job not to answer the question but
-                                                       to extract the urls for the intended answer. Extract urls for intended issues/tickets/commits/notion pages 
-                                                       from which the answer is supposed to be 
-Context:
-{context}
-
-Based on the context above,
-Question: {input}. For the question do not actually answer the question, just provide the urls for the intended answer.
-                                                        Provide a list of urls or a single url for issue/ticket/commit/notion page if applicable otherwise return an empty list.
-                                                        The list should be like the following format:
-                                                       ["url1","url2"]
-""")
 
 try:
     document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
