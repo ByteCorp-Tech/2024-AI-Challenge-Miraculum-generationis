@@ -118,13 +118,13 @@ elif st.session_state["checked_state"][0]:
     vector_store = FAISS.load_local("embeddings/notion", embeddings, allow_dangerous_deserialization=True)
 
 
-prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions based on the context provided. 
+prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions in full detail based on the context provided. 
 Context:
 {context}
 
-Based on the context above answer the question.You are not supposed to answer outside of the context in any condition as this will have serious repurcussions. Just reply that you dont know if the context does not
-                                                        the answer to the question
-Question: {input}.
+Based on the context above answer the question.Use the whole context for answers and answer in full detail.
+                                                        . Assume that the user wants answers in full detail so answer descriptively.
+Question: {input}. 
 """)
 
 
