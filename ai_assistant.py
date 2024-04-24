@@ -1,7 +1,6 @@
 import streamlit as st
 import json
 from dotenv import load_dotenv
-import openai
 from langchain_openai import OpenAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.vectorstores import FAISS
@@ -9,62 +8,30 @@ from langchain.text_splitter import CharacterTextSplitter
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
-from github_helper_functions import flatten_repo_data
-from jira_helper_functions import flatten_corpus
-from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
 import langchain
 from langchain_openai import ChatOpenAI
 FAISS.allow_dangerous_deserialization = True
-import tempfile
 import fitz
 import os
 from prompts import prompt_template_body, prompt_template_url
+import base64
+
+st.set_page_config(page_title="AI Chat Assistant", layout="wide", page_icon=":robot:", initial_sidebar_state="expanded")
 load_dotenv()
-
-
-
-
 
 embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 # llm = ChatOpenAI(model="gpt-4", temperature=0)
 
-
-st.set_page_config(layout="wide")
 st.title("AI Assistant")
-def on_change():
-    if st.session_state.toggle_notion or st.session_state.toggle_jira or st.session_state.toggle_github:
-        st.session_state.upload_file = False
-    st.session_state["checked_state"] = (st.session_state.toggle_notion, st.session_state.toggle_jira, st.session_state.toggle_github)
+st.markdown("### Ask me anything!")
 
-
-
-def on_file_upload_change():
-    if st.session_state.upload_file:
-        st.session_state.toggle_notion = False
-        st.session_state.toggle_jira = False
-        st.session_state.toggle_github = False
-    st.session_state["checked_state"] = (st.session_state.toggle_notion, st.session_state.toggle_jira, st.session_state.toggle_github)
-
-
-
-if "upload_file" not in st.session_state:
-    st.session_state.upload_file = False
-
-if "checked_state" not in st.session_state:
-    st.session_state["checked_state"] = (True, True, True)
-
-if "toggle_notion" not in st.session_state:
-    st.session_state["toggle_notion"] = True
-if "toggle_jira" not in st.session_state:
-    st.session_state["toggle_jira"] = True
-if "toggle_github" not in st.session_state:
-    st.session_state["toggle_github"] = True
-
-st.sidebar.checkbox("Upload File", value=st.session_state.upload_file, on_change=on_file_upload_change, key="upload_file")
-st.sidebar.checkbox("Notion", value=st.session_state.toggle_notion, on_change=on_change, key="toggle_notion", disabled=st.session_state.upload_file)
-st.sidebar.checkbox("JIRA", value=st.session_state.toggle_jira, on_change=on_change, key="toggle_jira", disabled=st.session_state.upload_file)
-st.sidebar.checkbox("GitHub", value=st.session_state.toggle_github, on_change=on_change, key="toggle_github", disabled=st.session_state.upload_file)
+with st.sidebar:
+    st.header("Settings")
+    st.session_state.upload_file = st.checkbox("Upload File")
+    st.session_state.toggle_notion = st.checkbox("Notion", value=True)
+    st.session_state.toggle_jira = st.checkbox("JIRA", value=True)
+    st.session_state.toggle_github = st.checkbox("GitHub", value=True)
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
@@ -73,14 +40,10 @@ def extract_text_from_pdf(pdf_path):
         text += page.get_text()
     return text
 
-
-
 if st.session_state.upload_file:
     uploaded_file = st.file_uploader("Upload your file", type=["pdf"])
-    print("PDF Mode")
     if uploaded_file is not None:
         file_path = uploaded_file.name
-        print(file_path)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getvalue())
         text = extract_text_from_pdf(file_path)
@@ -89,36 +52,21 @@ if st.session_state.upload_file:
         text_splitter = CharacterTextSplitter(separator="\n", chunk_size=500, chunk_overlap=100, length_function=len)
         chunks = text_splitter.split_text(text)
         vector_store = FAISS.from_texts(chunks, embeddings)
-        
-elif st.session_state["checked_state"] == (True, True, True):
-    print("all 3")
-    vector_store = FAISS.load_local("embeddings/github_notion_jira", embeddings, allow_dangerous_deserialization=True)
-
-elif st.session_state["checked_state"][1] and st.session_state["checked_state"][2]:
-    print("jira and github")
-    vector_store = FAISS.load_local("embeddings/jira_github", embeddings, allow_dangerous_deserialization=True)
-
-elif st.session_state["checked_state"][0] and st.session_state["checked_state"][2]:
-    print("notion and github")
-    vector_store = FAISS.load_local("embeddings/notion_github", embeddings, allow_dangerous_deserialization=True)
-
-elif st.session_state["checked_state"][0] and st.session_state["checked_state"][1]:
-    print("notion and jira")
-    vector_store = FAISS.load_local("embeddings/notion_jira", embeddings, allow_dangerous_deserialization=True)
-
-elif st.session_state["checked_state"][2]:
-    print("only github")
-    vector_store = FAISS.load_local("embeddings/github", embeddings, allow_dangerous_deserialization=True)
-
-elif st.session_state["checked_state"][1]:
-    print("only jira")
-    vector_store = FAISS.load_local("embeddings/jira", embeddings, allow_dangerous_deserialization=True)
-
-elif st.session_state["checked_state"][0]:
-    print("only notion")
-    vector_store = FAISS.load_local("embeddings/notion", embeddings, allow_dangerous_deserialization=True)
-
-
+else:
+    if st.session_state.toggle_notion and st.session_state.toggle_jira and st.session_state.toggle_github:
+        vector_store = FAISS.load_local("embeddings/github_notion_jira", embeddings, allow_dangerous_deserialization=True)
+    elif st.session_state.toggle_jira and st.session_state.toggle_github:
+        vector_store = FAISS.load_local("embeddings/jira_github", embeddings, allow_dangerous_deserialization=True)
+    elif st.session_state.toggle_notion and st.session_state.toggle_github:
+        vector_store = FAISS.load_local("embeddings/notion_github", embeddings, allow_dangerous_deserialization=True)
+    elif st.session_state.toggle_notion and st.session_state.toggle_jira:
+        vector_store = FAISS.load_local("embeddings/notion_jira", embeddings, allow_dangerous_deserialization=True)
+    elif st.session_state.toggle_github:
+        vector_store = FAISS.load_local("embeddings/github", embeddings, allow_dangerous_deserialization=True)
+    elif st.session_state.toggle_jira:
+        vector_store = FAISS.load_local("embeddings/jira", embeddings, allow_dangerous_deserialization=True)
+    elif st.session_state.toggle_notion:
+        vector_store = FAISS.load_local("embeddings/notion", embeddings, allow_dangerous_deserialization=True)
 
 try:
     document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
@@ -128,7 +76,6 @@ try:
     document_chain_url = create_stuff_documents_chain(llm, prompt_template_url)
     retriever_url = vector_store.as_retriever()
     retrieval_chain_url = create_retrieval_chain(retriever_url, document_chain_url)
-
 except:
     print("Waiting for file upload")
 
@@ -142,23 +89,25 @@ def query_assistant_url(input):
     response = retrieval_chain_url.invoke({"input": input})
     return response["answer"]
 
-user_input = st.text_input("Ask your question:", "")
-if st.button("Send"):
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+user_input = st.text_input("Ask your question:", "", key="user_input")
+if st.button("Send", key="send_button"):
     if user_input:
         answer = query_assistant_body(user_input)
-        if not st.session_state.upload_file:
-            urls=query_assistant_url(user_input)
-            urls=json.loads(urls)
-            links = []
-            for url in urls:
-                links.append(f"[{url}]({url})\n")
-            if links:
-                st.markdown("### Related Links")
-                st.markdown("\n".join(links))
-            else:
-                st.markdown("### Related Links")
-                st.markdown("No relevant links found.")
-            answer = answer.replace(",","\n")
-        st.text_area("Answer:", value=answer, height=300, key="bot_response")
-        
-        
+        urls = query_assistant_url(user_input)
+        urls = json.loads(urls)
+        links = []
+        for url in urls:
+            links.append(f"[{url}]({url})\n")
+        if links:
+            st.session_state.history.append({"user": user_input, "assistant": answer + "\n### Related Links\n" + "\n".join(links)})
+        else:
+            st.session_state.history.append({"user": user_input, "assistant": answer})
+        st.session_state.history.reverse()
+        chat_area = st.empty()
+        for chat in st.session_state.history:
+            chat_area.markdown(f"**User:** {chat['user']}\n{chat['assistant']}\n")
+        st.session_state.history.reverse()
+
