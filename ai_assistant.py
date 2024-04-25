@@ -5,13 +5,14 @@ import openai
 from langchain_openai import OpenAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.vectorstores import FAISS
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter,RecursiveJsonSplitter,RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from github_helper_functions import flatten_repo_data
 from jira_helper_functions import flatten_corpus
 from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
+from langchain_chroma import Chroma
 import langchain
 from langchain_openai import ChatOpenAI
 FAISS.allow_dangerous_deserialization = True
@@ -102,9 +103,9 @@ if st.session_state.upload_file:
         text = extract_text_from_pdf(file_path)
         os.remove(file_path)
         embeddings = OpenAIEmbeddings()
-        text_splitter = CharacterTextSplitter(separator="\n", chunk_size=500, chunk_overlap=100, length_function=len)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400, length_function=len)
         chunks = text_splitter.split_text(text)
-        vector_store = FAISS.from_texts(chunks, embeddings)
+        vector_store = Chroma.from_texts(chunks, embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
@@ -115,19 +116,18 @@ if st.session_state.upload_file:
         
 elif st.session_state["checked_state"] == (True, True, True):
     print("all 3")
-    vector_store = FAISS.load_local("embeddings/github_notion_jira", embeddings, allow_dangerous_deserialization=True)
+    vector_store = Chroma(persist_directory="embeddings/githubnotionjira", embedding_function=embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
         retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
-
 
     except:
         print("Waiting for file upload")
 
 elif st.session_state["checked_state"][1] and st.session_state["checked_state"][2]:
     print("jira and github")
-    vector_store = FAISS.load_local("embeddings/jira_github", embeddings, allow_dangerous_deserialization=True)
+    vector_store = Chroma(persist_directory="embeddings/jira_github", embedding_function=embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
@@ -137,7 +137,7 @@ elif st.session_state["checked_state"][1] and st.session_state["checked_state"][
 
 elif st.session_state["checked_state"][0] and st.session_state["checked_state"][2]:
     print("notion and github")
-    vector_store = FAISS.load_local("embeddings/notion_github", embeddings, allow_dangerous_deserialization=True)
+    vector_store = Chroma(persist_directory="embeddings/notion_github", embedding_function=embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
@@ -147,7 +147,7 @@ elif st.session_state["checked_state"][0] and st.session_state["checked_state"][
 
 elif st.session_state["checked_state"][0] and st.session_state["checked_state"][1]:
     print("notion and jira")
-    vector_store = FAISS.load_local("embeddings/notion_jira", embeddings, allow_dangerous_deserialization=True)
+    vector_store = Chroma(persist_directory="embeddings/notion_jira", embedding_function=embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
@@ -157,7 +157,7 @@ elif st.session_state["checked_state"][0] and st.session_state["checked_state"][
 
 elif st.session_state["checked_state"][2]:
     print("only github")
-    vector_store = FAISS.load_local("embeddings/github", embeddings, allow_dangerous_deserialization=True)
+    vector_store = Chroma(persist_directory="embeddings/github", embedding_function=embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
@@ -167,7 +167,7 @@ elif st.session_state["checked_state"][2]:
 
 elif st.session_state["checked_state"][1]:
     print("only jira")
-    vector_store = FAISS.load_local("embeddings/jira", embeddings, allow_dangerous_deserialization=True)
+    vector_store = Chroma(persist_directory="embeddings/jira", embedding_function=embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
@@ -177,7 +177,7 @@ elif st.session_state["checked_state"][1]:
 
 elif st.session_state["checked_state"][0]:
     print("only notion")
-    vector_store = FAISS.load_local("embeddings/notion", embeddings, allow_dangerous_deserialization=True)
+    vector_store = Chroma(persist_directory="embeddings/notion", embedding_function=embeddings)
     try:
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()

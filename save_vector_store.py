@@ -11,6 +11,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from github_helper_functions import flatten_repo_data
 from jira_helper_functions import flatten_corpus
+from langchain_chroma import Chroma
 from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
 from langchain_openai.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
@@ -44,16 +45,16 @@ notion_github_text='\n'.join([notion_text, github_text])
 
 def save_embeddings(text,name):
     embeddings = OpenAIEmbeddings()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=500, length_function=len)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=600, length_function=len)
     chunks = text_splitter.split_text(text)
-    vector_store = FAISS.from_texts(chunks, embeddings)
-    vector_store.save_local(f"embeddings/{name}")
+    vector_store = Chroma.from_texts(chunks, embeddings,persist_directory=f"embeddings/{name}")
+    # vector_store.save_local(f"embeddings/{name}")
 
 
-# save_embeddings(notion_text,"notion")
-# save_embeddings(jira_text,"jira")
-# save_embeddings(github_text,"github")
-# save_embeddings(github_notion_jira_text,"github_notion_jira")
+save_embeddings(notion_text,"notion")
+save_embeddings(jira_text,"jira")
+save_embeddings(github_text,"github")
+save_embeddings(github_notion_jira_text,"githubnotionjira")
 save_embeddings(notion_jira_text,"notion_jira")
 save_embeddings(jira_github_text,"jira_github")
 save_embeddings(notion_github_text,"notion_github")
