@@ -128,22 +128,52 @@ elif st.session_state["checked_state"] == (True, True, True):
 elif st.session_state["checked_state"][1] and st.session_state["checked_state"][2]:
     print("jira and github")
     vector_store = FAISS.load_local("embeddings/jira_github", embeddings, allow_dangerous_deserialization=True)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+    except:
+        print("Waiting for file upload")
 
 elif st.session_state["checked_state"][0] and st.session_state["checked_state"][2]:
     print("notion and github")
     vector_store = FAISS.load_local("embeddings/notion_github", embeddings, allow_dangerous_deserialization=True)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+    except:
+        print("Waiting for file upload")
 
 elif st.session_state["checked_state"][0] and st.session_state["checked_state"][1]:
     print("notion and jira")
     vector_store = FAISS.load_local("embeddings/notion_jira", embeddings, allow_dangerous_deserialization=True)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+    except:
+        print("Waiting for file upload")
 
 elif st.session_state["checked_state"][2]:
     print("only github")
     vector_store = FAISS.load_local("embeddings/github", embeddings, allow_dangerous_deserialization=True)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+    except:
+        print("Waiting for file upload")
 
 elif st.session_state["checked_state"][1]:
     print("only jira")
     vector_store = FAISS.load_local("embeddings/jira", embeddings, allow_dangerous_deserialization=True)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+    except:
+        print("Waiting for file upload")
 
 elif st.session_state["checked_state"][0]:
     print("only notion")
