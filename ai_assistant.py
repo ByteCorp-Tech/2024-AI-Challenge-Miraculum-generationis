@@ -18,6 +18,7 @@ FAISS.allow_dangerous_deserialization = True
 import tempfile
 import fitz
 import os
+import re
 load_dotenv()
 
 
@@ -74,6 +75,22 @@ def extract_text_from_pdf(pdf_path):
 
 
 
+prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions in full detail based on the context provided. Reply with a simple string "no context" if you cannot answer the question.
+Context:
+{context}
+
+Remember your job is to use the whole context for answers and do not leave any detail and do not give vague short answers. That is your primary responsibility.
+                                                                                                     Reply with "no context" if you can not answer the question from the context                                                               
+
+                                                        . 
+Question: {input}. Based on the context above answer the question.Use the whole context for answers and answer in full detail.
+
+                    If the question can not be answered by context and you cant answer any question then just reply "no context".
+""")
+
+
+
+
 if st.session_state.upload_file:
     uploaded_file = st.file_uploader("Upload your file", type=["pdf"])
     print("PDF Mode")
@@ -88,10 +105,25 @@ if st.session_state.upload_file:
         text_splitter = CharacterTextSplitter(separator="\n", chunk_size=500, chunk_overlap=100, length_function=len)
         chunks = text_splitter.split_text(text)
         vector_store = FAISS.from_texts(chunks, embeddings)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+
+    except:
+        print("Waiting for file upload")
         
 elif st.session_state["checked_state"] == (True, True, True):
     print("all 3")
     vector_store = FAISS.load_local("embeddings/github_notion_jira", embeddings, allow_dangerous_deserialization=True)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+
+
+    except:
+        print("Waiting for file upload")
 
 elif st.session_state["checked_state"][1] and st.session_state["checked_state"][2]:
     print("jira and github")
@@ -116,70 +148,53 @@ elif st.session_state["checked_state"][1]:
 elif st.session_state["checked_state"][0]:
     print("only notion")
     vector_store = FAISS.load_local("embeddings/notion", embeddings, allow_dangerous_deserialization=True)
+    try:
+        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
+        retriever_body = vector_store.as_retriever()
+        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+    except:
+        print("Waiting for file upload")
 
 
-prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions in full detail based on the context provided. 
-Context:
-{context}
-
-Based on the context above answer the question.Use the whole context for answers and answer in full detail.
-                                                        . Assume that the user wants answers in full detail so answer descriptively.
-Question: {input}. 
-""")
 
 
-prompt_template_url = ChatPromptTemplate.from_template("""You are a url extractor. Whenever a user asks a question your job not to answer the question but
-                                                       to extract the urls for the intended answer. Extract urls for intended issues/tickets/commits/notion pages 
-                                                       from which the answer is supposed to be 
-Context:
-{context}
-
-Based on the context above,
-Question: {input}. For the question do not actually answer the question, just provide the urls for the intended answer.
-                                                        Provide a list of urls or a single url for issue/ticket/commit/notion page if applicable otherwise return an empty list.
-                                                        The list should be like the following format:
-                                                       ["url1","url2"]
-""")
-
-try:
-    document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
-    retriever_body = vector_store.as_retriever()
-    retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
-
-    document_chain_url = create_stuff_documents_chain(llm, prompt_template_url)
-    retriever_url = vector_store.as_retriever()
-    retrieval_chain_url = create_retrieval_chain(retriever_url, document_chain_url)
-
-except:
-    print("Waiting for file upload")
+def extract_urls(text):
+    pattern = r'https?://[^,\s\n\]]*'
+    urls = re.findall(pattern, text)
+    unique_urls = list(set(urls))
+    return unique_urls
 
 def query_assistant_body(input):
     response = retrieval_chain_body.invoke({"input": input})
     context=response.get("context","No context available")
     print(context)
-    return response["answer"]
+    context_text=""
+    for document in context:
+        context_text+=document.page_content
+    urls=extract_urls(context_text)
+    print(urls)
+    return response["answer"],urls
 
-def query_assistant_url(input):
-    response = retrieval_chain_url.invoke({"input": input})
-    return response["answer"]
 
 user_input = st.text_input("Ask your question:", "")
 if st.button("Send"):
     if user_input:
-        answer = query_assistant_body(user_input)
-        if not st.session_state.upload_file:
-            urls=query_assistant_url(user_input)
-            urls=json.loads(urls)
-            links = []
-            for url in urls:
-                links.append(f"[{url}]({url})\n")
-            if links:
-                st.markdown("### Related Links")
-                st.markdown("\n".join(links))
-            else:
-                st.markdown("### Related Links")
-                st.markdown("No relevant links found.")
-            answer = answer.replace(",","\n")
+        answer,urls = query_assistant_body(user_input)
+        links = []
+        for url in urls:
+            links.append(f"[{url}]({url})\n")
+        if links:
+            st.markdown("### Related Links")
+            st.markdown("\n".join(links))
+        else:
+            st.markdown("### Related Links")
+            st.markdown("No relevant links found.")
+        if answer == "no context" and len(urls)!=0:
+            answer="I have only found the relevant links but cannot answer the question from context available. Please check the links provided"
+        if answer=="no context" and len(urls)==0:
+            answer="I have not found any relevant links or any answer from context"
+        else:
+            answer=answer.replace(",","\n")
         st.text_area("Answer:", value=answer, height=300, key="bot_response")
         
         

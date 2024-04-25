@@ -7,7 +7,7 @@ keys_to_remove = [
     "id", "color", "type", "link", "href", "public_url", "object",
     "database_id", "icon", "cover", "bold", "italic", "strikethrough",
     "underline", "code", "archived", "last_edited_time", "created_by",
-    "parent", "relation", "has_more", "Sub-item","has_children","last_edited_by","annotations","is_toggleable","divider","toggle","file",'created_time',"unsupported"
+     "relation", "has_more", "Sub-item","has_children","last_edited_by","annotations","is_toggleable","divider","toggle","file",'created_time',"unsupported"
 
 ]
 
@@ -15,7 +15,8 @@ keys_to_remove = [
     
 def remove_keys_from_dict(d, keys):
     if isinstance(d, dict):
-        return {k: remove_keys_from_dict(v, keys) for k, v in d.items() if k not in keys}
+        return {k: (remove_keys_from_dict(v, keys) if k != 'page_id' else f"https://www.notion.so/bytecorp/{v.replace('-', '')}")
+                for k, v in d.items() if k not in keys}
     elif isinstance(d, list):
         return [remove_keys_from_dict(v, keys) for v in d]
     else:

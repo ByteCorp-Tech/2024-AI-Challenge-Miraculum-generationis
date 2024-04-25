@@ -16,6 +16,7 @@ def flatten_repo_data(all_repos_data):
         for issue in repo_data['issues']:
             issue_body_cleaned = issue['body'].replace('\n', ' ')
             issue_line = [
+                "Github:\n",
                 "Issue:",
                 repo_name,
                 repo_description,
@@ -33,6 +34,7 @@ def flatten_repo_data(all_repos_data):
             for commit in branch['commits']:
                 commit_message_cleaned = commit['message'].replace('\n', ' ')
                 commit_line = [
+                    "Github:\n",
                     "Commit:",
                     repo_name,
                     repo_description,

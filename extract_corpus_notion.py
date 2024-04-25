@@ -1,11 +1,11 @@
 from notion_client import Client
 import os
 from dotenv import load_dotenv
-load_dotenv()
-NOTION_API_KEY=os.getenv("NOTION_API_KEY")
-notion = Client(auth=NOTION_API_KEY)
 import json
 
+load_dotenv()
+NOTION_API_KEY = os.getenv("NOTION_API_KEY")
+notion = Client(auth=NOTION_API_KEY)
 
 def fetch_block_children(block_id, notion):
     """Fetch all children blocks of a given block and include all block data."""
@@ -18,14 +18,17 @@ def fetch_block_children(block_id, notion):
     return content
 
 def fetch_all_pages(notion):
-    """Fetch all standalone pages in the workspace and include all page and block data."""
+    """Fetch all standalone pages in the workspace and include all page and block data along with the URLs."""
     pages = []
     query_results = notion.search(filter={"value": "page", "property": "object"})["results"]
-
+    print("Fetching page details...")  # Inform about the start of page fetching
     for page in query_results:
-        page_details = {"page_data": page}  
         page_id = page["id"]
-        page_details["content"] = fetch_block_children(page_id, notion)  
+        print(f"Processing page ID: {page_id}")  # Print each page ID being processed
+        page_details = {"page_data": page}
+        page_url = page.get('url', 'URL not available')
+        page_details["content"] = fetch_block_children(page_id, notion)
+        page_details["url"] = page_url
         pages.append(page_details)
 
     return pages
