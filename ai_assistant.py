@@ -1,82 +1,32 @@
-import json
-from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.text_splitter import CharacterTextSplitter,RecursiveJsonSplitter,RecursiveCharacterTextSplitter
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains import create_retrieval_chain
-from langchain_chroma import Chroma
-from langchain_openai import ChatOpenAI
-import fitz
+import solara
+from solara.components.file_drop import FileInfo
+from ai_assistant_chain import extract_urls, load_pdf_vector, load_vector_store
+from pathlib import Path
+from typing import Optional, cast,List
+import textwrap
 import os
-import re
-load_dotenv()
-
-embeddings = OpenAIEmbeddings()
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
-# llm = ChatOpenAI(model="gpt-4", temperature=0)
-
-def extract_text_from_pdf(pdf_path):
-    doc = fitz.open(pdf_path)
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    return text
-
-def load_pdf_vector(file_path):
-        text = extract_text_from_pdf(file_path)
-        os.remove(file_path)
-        embeddings = OpenAIEmbeddings()
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400, length_function=len)
-        chunks = text_splitter.split_text(text)
-        vector_store = Chroma.from_texts(chunks, embeddings)
-        document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
-        retriever_body = vector_store.as_retriever()
-        retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
-        return retrieval_chain_body
 
 
 
-def load_vector_store(name):
-    vector_store = Chroma(persist_directory=f"embeddings/{name}", embedding_function=embeddings)
-    document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
-    retriever_body = vector_store.as_retriever()
-    retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
-    return retrieval_chain_body
 
 
 
-prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions in full detail based on the context provided. Reply with a simple string "no context" if you cannot answer the question.
-Context:
-{context}
 
-Remember your job is to use the whole context for answers and do not leave any detail and do not give vague short answers. That is your primary responsibility.
-                                                                                                     Reply with "no context" if you can not answer the question from the context                                                               
-
-                                                        . 
-Question: {input}. Based on the context above answer the question.Use the whole context for answers and answer in full detail.
-
-                    If the question can not be answered by context and you cant answer any question then just reply "no context".
-""")
+input_message=solara.reactive("")
+output_message=solara.reactive("")
+output_urls=solara.reactive("")
+notion_checkbox = solara.reactive(True)
+jira_checkbox = solara.reactive(True)
+github_checkbox = solara.reactive(True)
+file_upload_checkbox = solara.reactive(False)
 
 
 
+global retrieval_chain_body
 retrieval_chain_body=load_vector_store("github_notion_jira")
-
-
-
-
-
-
-        
-def extract_urls(text):
-    pattern = r'https?://[^,\s\n\]]*'
-    urls = re.findall(pattern, text)
-    unique_urls = list(set(urls))
-    return unique_urls
-
+print("Vector Store Notion Github Jira loaded")
 def query_assistant_body(input):
+    global retrieval_chain_body
     response = retrieval_chain_body.invoke({"input": input})
     context=response.get("context","No context available")
     print(context)
@@ -87,6 +37,81 @@ def query_assistant_body(input):
     print(urls)
     return response["answer"],urls
 
+def handle_update(new_value):
+    response,urls=query_assistant_body(new_value)
+    url_markdown="Related Links: <br />"
+    for url in urls:
+        url_markdown+=f"[{url}]({url})<br />"
+    output_urls.value=url_markdown
+    response=response.replace("\n","<br />")
+    output_message.value=response
+    print(output_message.value)
 
 
-        
+def on_value_change_tools(value):
+    global retrieval_chain_body
+    if value:
+        file_upload_checkbox.value = False
+    if notion_checkbox.value and jira_checkbox.value and github_checkbox.value:
+        retrieval_chain_body=load_vector_store("github_notion_jira")
+        print("Vector Store Notion Github Jira loaded")
+    elif notion_checkbox.value and jira_checkbox.value:
+        retrieval_chain_body=load_vector_store("notion_jira")
+        print("Vector Store Notion Jira loaded")
+    elif notion_checkbox.value and github_checkbox.value:
+        retrieval_chain_body=load_vector_store("notion_github")
+        print("Vector Store Notion Github loaded")
+    elif jira_checkbox.value and github_checkbox.value:
+        retrieval_chain_body=load_vector_store("jira_github")
+        print("Vector Store Jira Github loaded")
+    elif notion_checkbox.value:
+        retrieval_chain_body=load_vector_store("notion")
+        print("Vector Store Notion loaded")
+    elif jira_checkbox.value:
+        retrieval_chain_body=load_vector_store("jira")
+        print("Vector Store Jira loaded")
+    elif github_checkbox.value:
+        retrieval_chain_body=load_vector_store("github")
+        print("Vector Store Github loaded")
+
+
+def on_value_change_file(value):
+    if value:
+        notion_checkbox.value = False
+        jira_checkbox.value = False
+        github_checkbox.value = False
+
+@solara.component
+def Page():
+    
+    def on_file(f: FileInfo):
+        global retrieval_chain_body
+        set_filename(f["name"])
+        set_size(f["size"])
+        content = f["file_obj"].read(f["size"])
+        set_content(content)  
+        file_path = f["name"]
+        with open(file_path, 'wb') as file:
+            file.write(content)
+        retrieval_chain_body=load_pdf_vector(file_path)
+
+
+    
+    content, set_content = solara.use_state(b"")
+    filename, set_filename = solara.use_state("")
+    size, set_size = solara.use_state(0)
+    with solara.Column() as main:
+        with solara.Sidebar():
+            checkbox_notion = solara.Checkbox(label="Notion", value=notion_checkbox,
+                                              on_value=lambda value: on_value_change_tools(value))
+            checkbox_jira = solara.Checkbox(label="Jira", value=jira_checkbox,
+                                            on_value=lambda value: on_value_change_tools(value))
+            checkbox_github = solara.Checkbox(label="Github", value=github_checkbox,
+                                              on_value=lambda value: on_value_change_tools(value))
+            checkbox_file = solara.Checkbox(label="File Upload", value=file_upload_checkbox,
+                                            on_value=lambda value: on_value_change_file(value))
+        solara.InputText("Type your message", value=input_message,on_value=handle_update,update_events=["keyup.enter"])
+        if file_upload_checkbox.value:
+            solara.FileDrop(label="Drag and drop a pdf.",on_file=on_file,lazy=True)
+        solara.Markdown(output_message.value)
+        solara.Markdown(output_urls.value)
