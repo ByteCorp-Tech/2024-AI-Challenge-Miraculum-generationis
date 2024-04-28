@@ -60,15 +60,6 @@ Question: {input}. Based on the context above answer the question.Use the whole 
                     If the question can not be answered by context and you cant answer any question then just reply "no context".
 """)
 
-
-
-
-
-
-
-
-
-
         
 def extract_urls(text):
     pattern = r'https?://[^,\s\n\]]*'

@@ -25,6 +25,19 @@ load_dotenv()
 def load_corpus(file_path):
     with open(file_path, 'r', encoding="utf-8") as f:
         return json.load(f)
+    
+def split_chunks(strings, chunk_size=1500, overlap=300):
+    updated_list = []
+    for s in strings:
+        while len(s) > chunk_size:
+            updated_list.append(s[:chunk_size])
+            s = s[chunk_size - overlap:]
+        if s:
+            updated_list.append(s)
+    
+    return updated_list
+
+
 
 
 
@@ -32,26 +45,30 @@ notion_corpus = load_corpus('corpus/notion_corpus.json')
 notion_cleaned = remove_keys_from_dict(notion_corpus, keys_to_remove)
 jira_corpus = load_corpus('corpus/jira_corpus.json')
 github_corpus = load_corpus('corpus/github_corpus.json')
+
+
+
+notion_text = ['notion\n' + parse_dict(page) for page in notion_cleaned]
 website_text=custom_chunking_website('website_data')
-
-
-notion_text = 'Notion:\n'.join([parse_dict(page) for page in notion_cleaned])
 jira_text = flatten_corpus(jira_corpus)
 github_text = flatten_repo_data(github_corpus)
-all_text='\n'.join([github_text, notion_text, jira_text,website_text])
+notion_text=split_chunks(notion_text,1500,300)
+# all_text='\n'.join([github_text,jira_text,website_text])
 
 
 
 
-def save_embeddings(text,name):
+
+def save_embeddings(chunks,name):
     embeddings = OpenAIEmbeddings()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=600, length_function=len)
-    chunks = text_splitter.split_text(text)
+    print(chunks[0])
+    print("\n\n\n\n")
+    print(chunks[1])
     vector_store = Chroma.from_texts(chunks, embeddings,persist_directory=f"embeddings/{name}")
 
-
-
-save_embeddings(all_text,'all')
-
+save_embeddings(notion_text,'Notion')
+save_embeddings(jira_text,'Jira')
+save_embeddings(github_text,'Github')
+save_embeddings(website_text,'Website')
 
 
