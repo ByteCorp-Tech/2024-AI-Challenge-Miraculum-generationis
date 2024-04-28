@@ -15,9 +15,9 @@ loader_visible = solara.reactive(True)
 input_message=solara.reactive("")
 output_message=solara.reactive("")
 output_urls=solara.reactive("")
-notion_checkbox = solara.reactive(False)
-jira_checkbox = solara.reactive(False)
-github_checkbox = solara.reactive(False)
+notion_checkbox = solara.reactive(True)
+jira_checkbox = solara.reactive(True)
+github_checkbox = solara.reactive(True)
 website_checkbox=solara.reactive(True)
 file_upload_checkbox = solara.reactive(False)
 
@@ -27,16 +27,17 @@ file_upload_checkbox = solara.reactive(False)
 
 
 global retrieval_chain_body
-retrieval_chain_body=load_vector_store('Website')
+retrieval_chain_body=load_vector_store('all',['notion','jira','github','website'])
 print("Vector Store Website loaded")
 def query_assistant_body(input):
     global retrieval_chain_body
     response = retrieval_chain_body.invoke({"input": input})
-    context=response.get("context","No context available")
-    print(context)
+    context=response.get("context","No context available")    
     context_text=""
     for document in context:
         context_text+=document.page_content
+    with open('context.txt',"w",encoding="utf-8") as f:
+        f.write(context_text)
     urls=extract_urls(context_text)
     # print(urls)
     return response["answer"],urls
@@ -54,33 +55,19 @@ def handle_update(new_value):
 def on_value_change_tools(value,name):
     print(value)
     print(name)
+    sourceList=[]
     global retrieval_chain_body
     if value:
         file_upload_checkbox.value = False
-    if value and name=="Notion":
-        jira_checkbox.value = False
-        github_checkbox.value = False
-        website_checkbox.value = False
-        retrieval_chain_body=load_vector_store('Notion')
-        print("Vector Store Notion loaded")
-    if value and name=="Jira":
-        notion_checkbox.value = False
-        github_checkbox.value = False
-        website_checkbox.value = False
-        retrieval_chain_body=load_vector_store('Jira')
-        print("Vector Store Jira loaded")
-    if value and name=="Github":
-        notion_checkbox.value = False
-        jira_checkbox.value = False
-        website_checkbox.value = False
-        retrieval_chain_body=load_vector_store('Github')
-        print("Vector Store Github loaded")
-    if value and name=="Website":
-        notion_checkbox.value = False
-        jira_checkbox.value = False
-        github_checkbox.value = False
-        retrieval_chain_body=load_vector_store('Website')
-        print("Vector Store Website loaded")
+    if notion_checkbox.value:
+        sourceList.append("notion")
+    if jira_checkbox.value:
+        sourceList.append("jira")
+    if github_checkbox.value:
+        sourceList.append("github")
+    if website_checkbox.value:
+        sourceList.append("website")
+    retrieval_chain_body=load_vector_store('all',sourceList)
 
 
 
@@ -111,13 +98,13 @@ def Page():
     with solara.Column() as main:
         with solara.Sidebar():
             checkbox_notion = solara.Checkbox(label="Notion", value=notion_checkbox,
-                                              on_value=lambda value: on_value_change_tools(value,"Notion"))
+                                              on_value=lambda value: on_value_change_tools(value,"notion"))
             checkbox_jira = solara.Checkbox(label="Jira", value=jira_checkbox,
-                                            on_value=lambda value: on_value_change_tools(value,"Jira"))
+                                            on_value=lambda value: on_value_change_tools(value,"jira"))
             checkbox_github = solara.Checkbox(label="Github", value=github_checkbox,
-                                              on_value=lambda value: on_value_change_tools(value,"Github"))
+                                              on_value=lambda value: on_value_change_tools(value,"github"))
             checkbox_website = solara.Checkbox(label="Website", value=website_checkbox,
-                                              on_value=lambda value: on_value_change_tools(value,"Website"))
+                                              on_value=lambda value: on_value_change_tools(value,"website"))
             checkbox_file = solara.Checkbox(label="File Upload", value=file_upload_checkbox,
                                             on_value=lambda value: on_value_change_file(value))
         solara.InputText("Type your message", value=input_message,on_value=handle_update,update_events=["keyup.enter"])

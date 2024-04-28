@@ -8,10 +8,14 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores.faiss import DistanceStrategy
 from langchain_openai import ChatOpenAI
 import fitz
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import re
+import warnings
+warnings.filterwarnings("ignore")
 load_dotenv()
 
 embeddings = OpenAIEmbeddings()
@@ -39,10 +43,15 @@ def load_pdf_vector(file_path):
 
 
 
-def load_vector_store(name):
-    vector_store = FAISS.load_local(f"embeddings/{name}", embeddings,allow_dangerous_deserialization = True)
+def load_vector_store(name,sourceList):
+    vector_store = FAISS.load_local(f"embeddings/{name}", embeddings,allow_dangerous_deserialization = True,distance_strategy=DistanceStrategy.COSINE)
+    # with open("context.txt","w",encoding="utf-8") as f: 
+    #     results = vector_store.similarity_search("Who is Kaamla Salman?", filter=dict(source="website"))
+    #     for doc in results:
+    #         print(f"Content: {doc.page_content}, Metadata: {doc.metadata}")
+    #         f.write(doc.page_content)
     document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
-    retriever_body = vector_store.as_retriever()
+    retriever_body = vector_store.as_retriever(search_kwargs={'filter':{'source':sourceList}})
     retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
     return retrieval_chain_body
 

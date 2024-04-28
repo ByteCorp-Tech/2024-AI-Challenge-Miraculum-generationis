@@ -17,6 +17,7 @@ from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_re
 from website_helper_functions import custom_chunking_website
 from langchain_openai.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
+from langchain_core.documents import Document
 import langchain
 FAISS.allow_dangerous_deserialization = True
 
@@ -60,14 +61,23 @@ notion_text=split_chunks(notion_text,1500,300)
 
 
 
-def save_embeddings(chunks,name):
+def save_embeddings(name):
+    list_of_documents=[]
+    for text in notion_text:
+        list_of_documents.append(Document(page_content=text, metadata=dict(source="notion")))
+    for text in jira_text:
+        list_of_documents.append(Document(page_content=text, metadata=dict(source="jira")))
+    for text in website_text:
+        list_of_documents.append(Document(page_content=text, metadata=dict(source="website")))
+    for text in github_text:
+        list_of_documents.append(Document(page_content=text, metadata=dict(source="github")))
     embeddings = OpenAIEmbeddings()
-    vector_store = FAISS.from_texts(chunks, embeddings)
+    vector_store = FAISS.from_documents(list_of_documents, embeddings)
     vector_store.save_local(f"embeddings/{name}")
 
-save_embeddings(notion_text,'Notion')
-save_embeddings(jira_text,'Jira')
-save_embeddings(github_text,'Github')
-save_embeddings(website_text,'Website')
+
+
+save_embeddings('all')
+
 
 
