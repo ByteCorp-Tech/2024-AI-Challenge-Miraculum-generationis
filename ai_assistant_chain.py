@@ -14,8 +14,8 @@ import re
 load_dotenv()
 
 embeddings = OpenAIEmbeddings()
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
-# llm = ChatOpenAI(model="gpt-4", temperature=0)
+# llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
+llm = ChatOpenAI(model="gpt-4", temperature=0)
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)

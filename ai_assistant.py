@@ -28,12 +28,12 @@ file_upload_checkbox = solara.reactive(False)
 
 global retrieval_chain_body
 retrieval_chain_body=load_vector_store('Website')
-print("Vector Store all loaded")
+print("Vector Store Website loaded")
 def query_assistant_body(input):
     global retrieval_chain_body
     response = retrieval_chain_body.invoke({"input": input})
     context=response.get("context","No context available")
-    # print(context)
+    print(context)
     context_text=""
     for document in context:
         context_text+=document.page_content
@@ -61,18 +61,26 @@ def on_value_change_tools(value,name):
         jira_checkbox.value = False
         github_checkbox.value = False
         website_checkbox.value = False
+        retrieval_chain_body=load_vector_store('Notion')
+        print("Vector Store Notion loaded")
     if value and name=="Jira":
         notion_checkbox.value = False
         github_checkbox.value = False
         website_checkbox.value = False
+        retrieval_chain_body=load_vector_store('Jira')
+        print("Vector Store Jira loaded")
     if value and name=="Github":
         notion_checkbox.value = False
         jira_checkbox.value = False
         website_checkbox.value = False
+        retrieval_chain_body=load_vector_store('Github')
+        print("Vector Store Github loaded")
     if value and name=="Website":
         notion_checkbox.value = False
         jira_checkbox.value = False
         github_checkbox.value = False
+        retrieval_chain_body=load_vector_store('Website')
+        print("Vector Store Website loaded")
 
 
 
