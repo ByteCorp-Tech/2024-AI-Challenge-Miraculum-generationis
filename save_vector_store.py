@@ -38,10 +38,8 @@ website_text=custom_chunking_website('website_data')
 notion_text = 'Notion:\n'.join([parse_dict(page) for page in notion_cleaned])
 jira_text = flatten_corpus(jira_corpus)
 github_text = flatten_repo_data(github_corpus)
-github_notion_jira_text='\n'.join([github_text, notion_text, jira_text])
-notion_jira_text='\n'.join([notion_text, jira_text])
-jira_github_text='\n'.join([jira_text, github_text])
-notion_github_text='\n'.join([notion_text, github_text])
+all_text='\n'.join([github_text, notion_text, jira_text,website_text])
+
 
 
 
@@ -50,13 +48,10 @@ def save_embeddings(text,name):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=600, length_function=len)
     chunks = text_splitter.split_text(text)
     vector_store = Chroma.from_texts(chunks, embeddings,persist_directory=f"embeddings/{name}")
-    # vector_store.save_local(f"embeddings/{name}")
 
 
-save_embeddings(notion_text,"notion")
-save_embeddings(jira_text,"jira")
-save_embeddings(github_text,"github")
-save_embeddings(github_notion_jira_text,"githubnotionjira")
-save_embeddings(notion_jira_text,"notion_jira")
-save_embeddings(jira_github_text,"jira_github")
-save_embeddings(notion_github_text,"notion_github")
+
+save_embeddings(all_text,'all')
+
+
+
