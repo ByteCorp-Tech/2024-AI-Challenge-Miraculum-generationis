@@ -13,6 +13,7 @@ from github_helper_functions import flatten_repo_data
 from jira_helper_functions import flatten_corpus
 from langchain_chroma import Chroma
 from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
+from website_helper_functions import custom_chunking_website
 from langchain_openai.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 import langchain
@@ -31,7 +32,7 @@ notion_corpus = load_corpus('corpus/notion_corpus.json')
 notion_cleaned = remove_keys_from_dict(notion_corpus, keys_to_remove)
 jira_corpus = load_corpus('corpus/jira_corpus.json')
 github_corpus = load_corpus('corpus/github_corpus.json')
-
+website_text=custom_chunking_website('website_data')
 
 
 notion_text = 'Notion:\n'.join([parse_dict(page) for page in notion_cleaned])
@@ -41,6 +42,7 @@ github_notion_jira_text='\n'.join([github_text, notion_text, jira_text])
 notion_jira_text='\n'.join([notion_text, jira_text])
 jira_github_text='\n'.join([jira_text, github_text])
 notion_github_text='\n'.join([notion_text, github_text])
+
 
 
 def save_embeddings(text,name):

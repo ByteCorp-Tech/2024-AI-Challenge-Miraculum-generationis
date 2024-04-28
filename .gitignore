@@ -4,3 +4,4 @@
 /embeddings
 *.faiss
 *.pkl
+/website_data
