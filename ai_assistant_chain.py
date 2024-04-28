@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain_chroma import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 import fitz
 import os
@@ -14,8 +15,8 @@ import re
 load_dotenv()
 
 embeddings = OpenAIEmbeddings()
-# llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
-llm = ChatOpenAI(model="gpt-4", temperature=0)
+llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
+# llm = ChatOpenAI(model="gpt-4", temperature=0)
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
@@ -30,7 +31,7 @@ def load_pdf_vector(file_path):
         embeddings = OpenAIEmbeddings()
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=400, length_function=len)
         chunks = text_splitter.split_text(text)
-        vector_store = Chroma.from_texts(chunks, embeddings)
+        vector_store = FAISS.from_texts(chunks, embeddings)
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
         retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
@@ -39,7 +40,7 @@ def load_pdf_vector(file_path):
 
 
 def load_vector_store(name):
-    vector_store = Chroma(persist_directory=f"embeddings/{name}", embedding_function=embeddings)
+    vector_store = FAISS.load_local(f"embeddings/{name}", embeddings,allow_dangerous_deserialization = True)
     document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
     retriever_body = vector_store.as_retriever()
     retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)

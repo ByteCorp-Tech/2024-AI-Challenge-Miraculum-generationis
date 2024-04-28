@@ -10,6 +10,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from github_helper_functions import flatten_repo_data
+from langchain_community.vectorstores import FAISS
 from jira_helper_functions import flatten_corpus
 from langchain_chroma import Chroma
 from notion_helper_functions import parse_dict, remove_keys_from_dict,keys_to_remove
@@ -61,10 +62,8 @@ notion_text=split_chunks(notion_text,1500,300)
 
 def save_embeddings(chunks,name):
     embeddings = OpenAIEmbeddings()
-    print(chunks[0])
-    print("\n\n\n\n")
-    print(chunks[1])
-    vector_store = Chroma.from_texts(chunks, embeddings,persist_directory=f"embeddings/{name}")
+    vector_store = FAISS.from_texts(chunks, embeddings)
+    vector_store.save_local(f"embeddings/{name}")
 
 save_embeddings(notion_text,'Notion')
 save_embeddings(jira_text,'Jira')
