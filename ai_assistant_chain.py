@@ -52,6 +52,7 @@ def load_vector_store(name,sourceList):
 
 
 
+
 prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions in full detail based on the context provided. Reply with a simple string "no context" if you cannot answer the question.
 Context:
 {context}
@@ -64,6 +65,10 @@ Question: {input}. Based on the context above answer the question.Use the whole 
 
                     If the question can not be answered by context and you cant answer any question then just reply "no context".
 """)
+
+
+
+
 
         
 def extract_urls(text):

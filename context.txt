@@ -1,3 +1,86 @@
- individual is allowed to take 10 days WFH per month,plain_text:each individual is allowed to take 10 days WFH per month,text:content:,,plain_text:,,text:content: ,plain_text: ,text:content:the number may definitely vary on circumstances and individual cases.,plain_text:the number may definitely vary on circumstances and individual cases.],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,bulleted_list_item:rich_text:[text:content:Unless under special circumstances, Avoid taking WFH on ,plain_text:Unless under special circumstances, Avoid taking WFH on ,text:content:Mondays and Fridays,plain_text:Mondays and Fridays,text:content:.,plain_text:.],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,heading_1:rich_text:[text:content:The Expectations:,plain_text:The Expectations:],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,paragraph:rich_text:[text:content:We expect each individual to follow this policy, and again,,plain_text:We expect each individual to follow this policy, and again,,text:content: apply their best judgment ,plain_text: apply their best judgment ,text:content:and think in the best interest of the company, while being as comfortable as they can with as much flexibility as we can provide.,plain_text:and think in the best interest of the company, while being as comfortable as they can with as much flexibility as we can provide.],parent:page_id:https://www.notion.so/bytecorp/03rking hours are flexible, but you have to assure your utmost availability between,text:content: 12:00 PM - 07:00 PM ,plain_text: 12:00 PM - 07:00 PM ,text:content:to cater to any queries or progress updates and try to notify on the channel whenever you’re,plain_text:to cater to any queries or progress updates and try to notify on the channel whenever you’re,text:content: Out-of-Office (OOO),plain_text: Out-of-Office (OOO),text:content: or you’re ,plain_text: or you’re ,text:content:Away-From-Keyboard (AFK),plain_text:Away-From-Keyboard (AFK),text:content:, and subsequently whenever you are,plain_text:, and subsequently whenever you are,text:content: back-at-station (BAS),plain_text: back-at-station (BAS),text:content:. Recognize the difference between doing the work, and being available. The timings are not a restriction, but just a measure to prevent team members from being in the dark without any notification by members who are working from home. ,plain_text:. Recognize the difference between doing the work, and being available. The timings are not a restriction, but just a measure to prevent team members from being in the dark without any notification by members who are working from home. ],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,numbered_list_item:rich_text:[text:content:Notify when you are completed with your deliverable for the day on your respective #team channel, or the reason or complications that caused it to be a ,plain_text:Nlagging in performance or violating any point that is mentioned in this policy. A log that will be maintained openly in our Notion Workspace here (insert link). If any individual gets three strikes, he won’t be allowed to avail WFH that month and the next one as well. Again, this will not include any special circumstances.],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,heading_1:rich_text:[text:content:Tools and Equipment:,plain_text:Tools and Equipment:],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,paragraph:rich_text:[text:content:
-All team members are to make use of the following use to their maximum extent during their work-from-home:,plain_text:
-All team members are to make use of the following use to their maximum extent during their work-from-home:],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,numbered_list_item:rich_text:[text:content:Notion,plain_text:Notion],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,numbered_list_item:rich_text:[text:content:Jira,plain_text:Jira],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,numbered_list_item:rich_text:[text:content:Slack,plain_text:Slack],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,numbered_list_item:rich_text:[text:content:Google Meet,plain_text:Google Meet],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e239k board) or are awaiting to be assigned a deliverable so that your lead can take action accordingly.,plain_text: Channel (for e.g. #development-team if you are in the dev team) that you are on your workstation now and are either working on some deliverable (as mentioned in the task board) or are awaiting to be assigned a deliverable so that your lead can take action accordingly.],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,numbered_list_item:rich_text:[text:content:Ask your respective lead about his availability and schedule a meeting earlier in the day if you need assistance with anything. Scheduling the meeting earlier in the day will help ensure that the deliverable isn’t compromised. ,plain_text:Ask your respective lead about his availability and schedule a meeting earlier in the day if you need assistance with anything. Scheduling the meeting earlier in the day will help ensure that the deliverable isn’t compromised. ],parent:page_id:https://www.notion.so/bytecorp/0394cf5991084a3a9473e23933ac57f6,numbered_list_item:rich_text:[text:content:The working hours are flexible, but you have to assure your utmost availability between,plain_text:The working hours are flexible, but you have to assure your utmost availability between,text:content: 12:00 PM - 07:00 PM ,plain_text: 12:00 PM - 07:00 PM ,text:content:to cater to any queries or progress updates and try to notify on the channel whenever you’re,plain_text:to cater to any queries or progre
+website
+https://www.facebook.com/bytecorp.io/
+ByteCorp
+Intro
+Photos
+ByteCorp
+website
+https://bytecorp.io/company/about-us
+
+Clients
+Media
+
+Careers
+Company
+
+/
+/
+About ByteCorp
+Building The Future
+Whowe are
+ByteCorp is an AI-Powered Product Consultancy that enables the use of data-driven products and solutions for its customers, so they can receive the promised value and growth in return for their investment. We have collectively worked with Startups and Founders with more than 100 Million Dollars in funding and is helping them raise more.
+OurMission
+The Mission of ByteCorp is to enable the use of data-driven products and solutions for its customers, so they can receive the promised value and growth in return for their investment.
+OurVision
+The Vision of ByteCorp is to be among the top names that are well-known in a variety of industries for their unique and robust Artificial Intelligence Solutions and vertical disrupting products. We make hectic processes easier, and solve difficult challenges in multiple domains. ByteCorp aims to be a proud team of extensively capable Scientists, Designers, and creative thinkers who work together to carry out the execution of any product towards success that is centered around AI, Data Analytics and beyond.
+Where weStarted From
+1. Founded
+ByteCorp was founded in June 2019, and there was not much promise present at that time. The only thing that the co-founders had was the determination to enable the use of modern technology, and create a culture that learns and grows indefinitely.
+2. Silicon Valley
+ByteCorp landed its first client from the Valley in the early 2020, where we helped a co-founder with the end-to-end development of their product in the domain of Artificial Intelligence and Data Science, thus giving way to our process of helping tech founders grow. In June 2019, and there was not much promise present at that time.
+3. A Few Seeds
+Since then, ByteCorp has helped multiple co-founders raise a few seed rounds, and have also raised a pre-seed on one of its own products. Till date, ByteCorp is working on products with a collective funding of more than $20 million.
+OurHistory
+$100M+
+Raised By Associated Startups
+50+
+Team Members And Advisors
+10+
+Projects Built And Deployed
+Send In YourTech ProblemAnd We Will Get Back To You With A Solution.
+Or Schedule A Call Right Away To Discuss Your Requirements
+A Technology Company that focuses on Value, Transparency and Communication.
+Connect With Us
+Company
+Schedule A Call
+Copyright © 2022ByteCorp Technologies. All rights reserved.
+website
+https://bytecorp.io/company/about-us/
+
+Clients
+Media
+
+Careers
+Company
+
+/
+/
+About ByteCorp
+Building The Future
+Whowe are
+ByteCorp is an AI-Powered Product Consultancy that enables the use of data-driven products and solutions for its customers, so they can receive the promised value and growth in return for their investment. We have collectively worked with Startups and Founders with more than 100 Million Dollars in funding and is helping them raise more.
+OurMission
+The Mission of ByteCorp is to enable the use of data-driven products and solutions for its customers, so they can receive the promised value and growth in return for their investment.
+OurVision
+The Vision of ByteCorp is to be among the top names that are well-known in a variety of industries for their unique and robust Artificial Intelligence Solutions and vertical disrupting products. We make hectic processes easier, and solve difficult challenges in multiple domains. ByteCorp aims to be a proud team of extensively capable Scientists, Designers, and creative thinkers who work together to carry out the execution of any product towards success that is centered around AI, Data Analytics and beyond.
+Where weStarted From
+1. Founded
+ByteCorp was founded in June 2019, and there was not much promise present at that time. The only thing that the co-founders had was the determination to enable the use of modern technology, and create a culture that learns and grows indefinitely.
+2. Silicon Valley
+ByteCorp landed its first client from the Valley in the early 2020, where we helped a co-founder with the end-to-end development of their product in the domain of Artificial Intelligence and Data Science, thus giving way to our process of helping tech founders grow. In June 2019, and there was not much promise present at that time.
+3. A Few Seeds
+Since then, ByteCorp has helped multiple co-founders raise a few seed rounds, and have also raised a pre-seed on one of its own products. Till date, ByteCorp is working on products with a collective funding of more than $20 million.
+OurHistory
+$100M+
+Raised By Associated Startups
+50+
+Team Members And Advisors
+10+
+Projects Built And Deployed
+Send In YourTech ProblemAnd We Will Get Back To You With A Solution.
+Or Schedule A Call Right Away To Discuss Your Requirements
+A Technology Company that focuses on Value, Transparency and Communication.
+Connect With Us
+Company
+Schedule A Call
+Copyright © 2022ByteCorp Technologies. All rights reserved.

@@ -70,19 +70,25 @@ def Page():
     def query_assistant_body(input):
         set_processing(True)
         global retrieval_chain_body
-        input+=""
         response = retrieval_chain_body.invoke({"input": input})
-        context=response.get("context","No context available")    
+        context=response.get("context","No context available")
         context_text=""
-        for document in context:
-            context_text+=document.page_content
+        if context[0].metadata["source"]=="notion":
+            context_text=context[0].page_content+"\n"+context[1].page_content
+        else:   
+            for document in context:
+                if document.metadata["source"]!="notion":
+                    context_text+=document.page_content
         with open('context.txt',"w",encoding="utf-8") as f:
             f.write(context_text)
         urls=extract_urls(context_text)
         response=response["answer"]
         url_markdown="Related Links: <br />"
         for url in urls:
-            url_markdown+=f"[{url}]({url})<br />"
+            if "notion" in url and len(url)<56:
+                continue
+            else:
+                url_markdown+=f"[{url}]({url})<br />"
         set_output_urls(url_markdown)
         response=response.replace("\n","<br />")
         set_output_message(response)
