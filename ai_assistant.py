@@ -68,6 +68,7 @@ def Page():
     processing, set_processing = solara.use_state(False)
 
     def query_assistant_body(input):
+        input=input.lower()
         set_processing(True)
         global retrieval_chain_body
         response = retrieval_chain_body.invoke({"input": input})

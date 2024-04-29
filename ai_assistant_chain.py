@@ -10,6 +10,7 @@ from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores.faiss import DistanceStrategy
 from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 import fitz
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
@@ -19,7 +20,8 @@ warnings.filterwarnings("ignore")
 load_dotenv()
 
 embeddings = OpenAIEmbeddings()
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
+# llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
+llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 # llm = ChatOpenAI(model="gpt-4", temperature=0.2)
 
 def extract_text_from_pdf(pdf_path):
@@ -53,17 +55,21 @@ def load_vector_store(name,sourceList):
 
 
 
-prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions in full detail based on the context provided. Reply with a simple string "no context" if you cannot answer the question.
+prompt_template_body = ChatPromptTemplate.from_template("""Answer the questions in full detail based on the context provided.
+                                                        your knowledge is limited to the context provided below
+                                                         Reply with a simple string "no context" if you cannot answer the question.
 Context:
 {context}
-
+the context is your whole knowledge, you are not to make assumptions and go outside of the context
 Remember your job is to use the whole context for answers and do not leave any detail and do not give vague short answers. That is your primary responsibility.
                                                                                                      Reply with "no context" if you can not answer the question from the context                                                               
 
                                                         . 
 Question: {input}. Based on the context above answer the question.Use the whole context for answers and answer in full detail.
-
+                    Just reply with "no context" if the context does not answer the question. You are not supposed to make assumptions and answer questions yourselves
+                    Do not give information outside of context in any way at all as this will have serious problems. Do not make assumptions either just answer from context
                     If the question can not be answered by context and you cant answer any question then just reply "no context".
+                    Do not try to explain anything when the question cannot be answered from the context. just return a single string "no context"
 """)
 
 
