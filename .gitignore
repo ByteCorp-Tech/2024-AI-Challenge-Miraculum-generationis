@@ -5,4 +5,3 @@
 *.faiss
 *.pkl
 /website_data
-context.txt
