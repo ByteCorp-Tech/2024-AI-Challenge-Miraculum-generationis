@@ -9,8 +9,7 @@ import os
 
 def custom_chunking_website(directory='website_data'):
     chunks = []
-    arbitrary_strings_to_remove = ["Copyright Policy", "California Privacy Disclosure", "Privacy Policy","Learn More","Services","Expertise","Staff Augmentation","Other Services","Web Development","Work","Anmol","CreatorVerse",
-                                   "DevOps","MLOps","EdTech","Web 3","Design Consultancy","Blockchain Development","AWS","Careers","Company","About Us","Our Team","Board of Advisors","Platforms"
+    arbitrary_strings_to_remove = ["Expertise","Other Services","Web 3","EdTech","Commercial Driving","Security","Finance","On-Demand Services","Automation","Services","Work","Web 3","EdTech","Automation","Platforms"
                                    ]
 
     for filename in os.listdir(directory):

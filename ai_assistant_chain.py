@@ -20,7 +20,7 @@ load_dotenv()
 
 embeddings = OpenAIEmbeddings()
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
-# llm = ChatOpenAI(model="gpt-4", temperature=0)
+# llm = ChatOpenAI(model="gpt-4", temperature=0.2)
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
@@ -45,11 +45,6 @@ def load_pdf_vector(file_path):
 
 def load_vector_store(name,sourceList):
     vector_store = FAISS.load_local(f"embeddings/{name}", embeddings,allow_dangerous_deserialization = True,distance_strategy=DistanceStrategy.COSINE)
-    # with open("context.txt","w",encoding="utf-8") as f: 
-    #     results = vector_store.similarity_search("Who is Kaamla Salman?", filter=dict(source="website"))
-    #     for doc in results:
-    #         print(f"Content: {doc.page_content}, Metadata: {doc.metadata}")
-    #         f.write(doc.page_content)
     document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
     retriever_body = vector_store.as_retriever(search_kwargs={'filter':{'source':sourceList}})
     retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
