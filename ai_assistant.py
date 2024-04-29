@@ -90,6 +90,11 @@ def Page():
             else:
                 url_markdown+=f"[{url}]({url})<br />"
         set_output_urls(url_markdown)
+        if response=="no context":
+            if len(urls)>0:
+                response="I do not have the knowledge for what you have asked but the following links may prove helpful"
+            else:
+                response="Sorry, I can not help you with your query as I do not have the knowledge"
         response=response.replace("\n","<br />")
         set_output_message(response)
         set_loader(False)
