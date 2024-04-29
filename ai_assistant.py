@@ -70,6 +70,7 @@ def Page():
     def query_assistant_body(input):
         set_processing(True)
         global retrieval_chain_body
+        input+=". Team Bytecorp"
         response = retrieval_chain_body.invoke({"input": input})
         context=response.get("context","No context available")    
         context_text=""
