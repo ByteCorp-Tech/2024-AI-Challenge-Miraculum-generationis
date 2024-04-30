@@ -1,6 +1,6 @@
 import solara
 from solara.components.file_drop import FileInfo
-from ai_assistant_chain import extract_urls, load_pdf_vector, load_vector_store
+from ai_assistant_chain import extract_urls, load_pdf_vector, load_vector_store,switch_llm
 from pathlib import Path
 import reacton.ipyvuetify as v
 from typing import Optional, cast,List
@@ -19,15 +19,12 @@ jira_checkbox = solara.reactive(True)
 github_checkbox = solara.reactive(True)
 website_checkbox=solara.reactive(True)
 file_upload_checkbox = solara.reactive(False)
-
-
-
-
-
-
+llm=solara.reactive("gemini")
+switch_llm(llm.value,"gemini-pro")
 global retrieval_chain_body
 retrieval_chain_body=load_vector_store('all',['notion','jira','github','website'])
-print("Vector Store Website loaded")
+
+
 
 
 
@@ -49,6 +46,30 @@ def on_value_change_tools(value,name):
         sourceList.append("website")
     retrieval_chain_body=load_vector_store('all',sourceList)
 
+def on_value_change_llm(value):
+    global retrieval_chain_body
+    if value=="gemini":
+        switch_llm("gemini","gemini-pro")
+    else:
+        if value=="gemma-7b-it":
+            switch_llm("llama","gemma-7b-it")
+        elif value=="llama3-8b-8192":
+            switch_llm("llama","llama3-8b-8192")
+        elif value=="llama3-70b-8192":
+            switch_llm("llama","llama3-70b-8192")
+        elif value=="mixtral-8x7b-32768":
+            switch_llm("llama","mixtral-8x7b-32768")
+    sourceList=[]
+    if notion_checkbox.value:
+        sourceList.append("notion")
+    if jira_checkbox.value:
+        sourceList.append("jira")
+    if github_checkbox.value:
+        sourceList.append("github")
+    if website_checkbox.value:
+        sourceList.append("website")
+    retrieval_chain_body=load_vector_store('all',sourceList)
+
 
 
 def on_value_change_file(value):
@@ -60,6 +81,8 @@ def on_value_change_file(value):
 
 @solara.component
 def Page():
+    llms=["gemini","gemma-7b-it","llama3-8b-8192","llama3-70b-8192","mixtral-8x7b-32768"]
+    
     solara.Title("AI Assistant")
     loader,set_loader=solara.use_state(False)
     input_message,set_input_message=solara.use_state("")
@@ -128,6 +151,19 @@ def Page():
     size, set_size = solara.use_state(0)
     with solara.Column() as main:
         with solara.Sidebar():
+            solara.Select(label="Select Model",value=llm,values=llms,on_value=on_value_change_llm)
+            
+            with solara.Card(title="Instructions"):
+                solara.Markdown(""" **To help you get the best answers, please provide detailed queries.**
+**For Instance:**<br />
+Instead of: "Information X"<br />
+Try: "Find me Information X"<br />
+**Be specific about where to find the information you need:**<br />
+Instead of: "Who is Person X"<br />
+Try: "Who is Person X in Team Y"<br />
+By guiding your queries, you enable the assistant to understand and respond more effectively.
+  """)
+            
             checkbox_notion = solara.Checkbox(label="Notion", value=notion_checkbox,
                                               on_value=lambda value: on_value_change_tools(value,"notion"))
             checkbox_jira = solara.Checkbox(label="Jira", value=jira_checkbox,
@@ -138,7 +174,7 @@ def Page():
                                               on_value=lambda value: on_value_change_tools(value,"website"))
             checkbox_file = solara.Checkbox(label="File Upload", value=file_upload_checkbox,
                                             on_value=lambda value: on_value_change_file(value))
-
+       
         text_field = v.TextField(v_model=input_message, on_v_model=set_input_message, label="Enter your message")
         v.use_event(text_field, "keydown.enter", handle_update)
         solara.Button(label="Send", color="primary",on_click=handle_update)

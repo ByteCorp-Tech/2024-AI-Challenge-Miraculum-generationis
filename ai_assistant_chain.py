@@ -20,9 +20,23 @@ warnings.filterwarnings("ignore")
 load_dotenv()
 
 embeddings = OpenAIEmbeddings()
-# llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
-llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+global llm
+llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
+
+# llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 # llm = ChatOpenAI(model="gpt-4", temperature=0.2)
+
+
+
+def switch_llm(name,model_name):
+     global llm
+     if name=="gemini":
+        llm = ChatGoogleGenerativeAI(model=model_name, temperature=0.5)
+        print(f"Switched LLM to {name} {model_name}")
+     if name=="llama":
+        llm = ChatGroq(temperature=0, model_name=model_name)
+        print(f"Switched LLM to {name} {model_name}")
+    
 
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
@@ -32,6 +46,7 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 def load_pdf_vector(file_path):
+        global llm
         text = extract_text_from_pdf(file_path)
         os.remove(file_path)
         embeddings = OpenAIEmbeddings()
@@ -41,15 +56,18 @@ def load_pdf_vector(file_path):
         document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
         retriever_body = vector_store.as_retriever()
         retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+        print("Loaded PDF Vector Store")
         return retrieval_chain_body
 
 
 
 def load_vector_store(name,sourceList):
+    global llm
     vector_store = FAISS.load_local(f"embeddings/{name}", embeddings,allow_dangerous_deserialization = True,distance_strategy=DistanceStrategy.COSINE)
     document_chain_body = create_stuff_documents_chain(llm, prompt_template_body)
     retriever_body = vector_store.as_retriever(search_kwargs={'filter':{'source':sourceList}})
     retrieval_chain_body = create_retrieval_chain(retriever_body, document_chain_body)
+    print("Loaded Vector Store")
     return retrieval_chain_body
 
 
