@@ -74,5 +74,8 @@ def create_corpus(notion):
 corpus = create_corpus(notion)
 
 # Save the corpus to a JSON file
-with open("corpus/notion_corpus.json", "w", encoding="utf-8") as f:
+corpus_directory = os.path.join(os.path.dirname(__file__), '../corpus/')
+corpus_file_path = os.path.join(corpus_directory, 'notion_corpus.json')
+
+with open(corpus_file_path, 'w', encoding='utf-8') as f:
     json.dump(corpus, f, ensure_ascii=False, indent=4)

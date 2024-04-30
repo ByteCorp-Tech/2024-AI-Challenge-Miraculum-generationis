@@ -83,5 +83,8 @@ def get_github_data():
 github_corpus = get_github_data()
 
 # Save GitHub corpus to a JSON file
-with open('corpus/github_corpus.json', 'w', encoding="utf-8") as f:
+corpus_directory = os.path.join(os.path.dirname(__file__), '../corpus/')
+corpus_file_path = os.path.join(corpus_directory, 'github_corpus.json')
+
+with open(corpus_file_path, 'w', encoding="utf-8") as f:
     json.dump(github_corpus, f, indent=4)

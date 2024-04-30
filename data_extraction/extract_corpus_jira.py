@@ -68,7 +68,10 @@ if __name__ == "__main__":
     corpus = create_corpus()
 
     # Save JIRA corpus to a JSON file
-    with open('corpus/jira_corpus.json', 'w', encoding='utf-8') as f:
+    corpus_directory = os.path.join(os.path.dirname(__file__), '../corpus/')
+    corpus_file_path = os.path.join(corpus_directory, 'jira_corpus.json')
+
+    with open(corpus_file_path, 'w', encoding='utf-8') as f:
         json.dump(corpus, f, ensure_ascii=False, indent=4)
     
     print("Corpus has been extracted and saved.")
