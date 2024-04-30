@@ -153,16 +153,7 @@ def Page():
         with solara.Sidebar():
             solara.Select(label="Select Model",value=llm,values=llms,on_value=on_value_change_llm)
             
-            with solara.Card(title="Instructions"):
-                solara.Markdown(""" **To help you get the best answers, please provide detailed queries.**
-**For Instance:**<br />
-Instead of: "Information X"<br />
-Try: "Find me Information X"<br />
-**Be specific about where to find the information you need:**<br />
-Instead of: "Who is Person X"<br />
-Try: "Who is Person X in Team Y"<br />
-By guiding your queries, you enable the assistant to understand and respond more effectively.
-  """)
+            
             
             checkbox_notion = solara.Checkbox(label="Notion", value=notion_checkbox,
                                               on_value=lambda value: on_value_change_tools(value,"notion"))
@@ -174,7 +165,18 @@ By guiding your queries, you enable the assistant to understand and respond more
                                               on_value=lambda value: on_value_change_tools(value,"website"))
             checkbox_file = solara.Checkbox(label="File Upload", value=file_upload_checkbox,
                                             on_value=lambda value: on_value_change_file(value))
-       
+        
+
+        with solara.Card(title="Instructions"):
+                solara.Markdown(""" **To help you get the best answers, please provide detailed queries.**
+**For Instance:**<br />
+Instead of: "Information X"<br />
+Try: "Find me Information X"<br />
+**Be specific about where to find the information you need:**<br />
+Instead of: "Who is Person X"<br />
+Try: "Who is Person X in Team Y"<br />
+By guiding your queries, you enable the assistant to understand and respond more effectively.
+  """)
         text_field = v.TextField(v_model=input_message, on_v_model=set_input_message, label="Enter your message")
         v.use_event(text_field, "keydown.enter", handle_update)
         solara.Button(label="Send", color="primary",on_click=handle_update)
