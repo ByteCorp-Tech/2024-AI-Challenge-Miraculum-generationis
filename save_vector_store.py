@@ -3,11 +3,11 @@ from dotenv import load_dotenv
 import openai
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain import FAISS
-from github_helper_functions import flatten_repo_data
+from utilities.github_helper_functions import flatten_repo_data
 from langchain_community.vectorstores import FAISS
-from jira_helper_functions import flatten_corpus
-from notion_helper_functions import parse_dict, remove_keys_from_dict, keys_to_remove
-from website_helper_functions import custom_chunking_website
+from utilities.jira_helper_functions import flatten_corpus
+from utilities.notion_helper_functions import parse_dict, remove_keys_from_dict, keys_to_remove
+from utilities.website_helper_functions import custom_chunking_website
 from langchain_openai.llms import OpenAI
 from langchain_core.documents import Document
 import langchain
