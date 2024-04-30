@@ -2,12 +2,23 @@ from github import Github
 from dotenv import load_dotenv
 import os
 import json
+
 load_dotenv()
 
 GITHUB_ACCESS_TOKEN=os.getenv("GITHUB_ACCESS_TOKEN")
 g = Github(GITHUB_ACCESS_TOKEN)
 
 def get_repo_data(repo):
+    """
+    Retrieve data for a GitHub repository.
+
+    Args:
+        repo (github.Repository.Repository): GitHub repository object.
+
+    Returns:
+        dict: Dictionary containing repository data.
+
+    """
     repo_data = {
         'name': repo.name,
         'description': repo.description,
@@ -16,7 +27,7 @@ def get_repo_data(repo):
         'issues': [] 
     }
 
-
+    # Retrieve issues data
     for issue in repo.get_issues(state='all'): 
         issue_data = {
             'title': issue.title,
@@ -29,14 +40,14 @@ def get_repo_data(repo):
         }
         repo_data['issues'].append(issue_data)
 
-
+    # Retrieve branches data
     for branch in repo.get_branches():
         branch_data = {
             'name': branch.name,
             'commits': []
         }
         
-
+        # Retrieve commits data for each branch
         for commit in repo.get_commits(sha=branch.commit.sha):
             commit_data = {
                 'sha': commit.sha,
@@ -51,19 +62,26 @@ def get_repo_data(repo):
     
     return repo_data
 
-
-
 def get_github_data():
+    """
+    Retrieve data for all GitHub repositories of the authenticated user.
+
+    Returns:
+        list: List of dictionaries containing data for each repository.
+
+    """
     all_repos_data = []
     
+    # Retrieve data for each repository
     for repo in g.get_user().get_repos():
         repo_data = get_repo_data(repo)
         all_repos_data.append(repo_data)
     
     return all_repos_data
 
+# Retrieve GitHub data
 github_corpus = get_github_data()
 
-
-with open('corpus/github_corpus.json', 'w',encoding="utf-8") as f:
+# Save GitHub corpus to a JSON file
+with open('corpus/github_corpus.json', 'w', encoding="utf-8") as f:
     json.dump(github_corpus, f, indent=4)

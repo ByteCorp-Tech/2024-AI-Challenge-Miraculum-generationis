@@ -4,11 +4,25 @@ from dotenv import load_dotenv
 import json
 
 load_dotenv()
+
+# Load Notion API key from environment variables
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
+
+# Initialize Notion client
 notion = Client(auth=NOTION_API_KEY)
 
 def fetch_block_children(block_id, notion):
-    """Fetch all children blocks of a given block and include all block data."""
+    """
+    Fetch all children blocks of a given block and include all block data recursively.
+
+    Args:
+        block_id (str): ID of the block to fetch children for.
+        notion (notion_client.client.Client): Notion client instance.
+
+    Returns:
+        list: List of dictionaries containing data for each block.
+
+    """
     block_children = notion.blocks.children.list(block_id=block_id)["results"]
     content = []
     for block in block_children:
@@ -18,7 +32,16 @@ def fetch_block_children(block_id, notion):
     return content
 
 def fetch_all_pages(notion):
-    """Fetch all standalone pages in the workspace and include all page and block data along with the URLs."""
+    """
+    Fetch all standalone pages in the workspace and include all page and block data along with the URLs.
+
+    Args:
+        notion (notion_client.client.Client): Notion client instance.
+
+    Returns:
+        list: List of dictionaries containing data for each page.
+
+    """
     pages = []
     query_results = notion.search(filter={"value": "page", "property": "object"})["results"]
     print("Fetching page details...")
@@ -34,11 +57,20 @@ def fetch_all_pages(notion):
     return pages
 
 def create_corpus(notion):
-    """Create a corpus from all standalone pages in the workspace, including all data."""
+    """
+    Create a corpus from all standalone pages in the workspace, including all data.
+
+    Args:
+        notion (notion_client.client.Client): Notion client instance.
+
+    Returns:
+        list: List of dictionaries containing data for each page.
+
+    """
     corpus = fetch_all_pages(notion)
     return corpus
 
-
+# Create Notion corpus
 corpus = create_corpus(notion)
 
 # Save the corpus to a JSON file

@@ -1,18 +1,24 @@
 import os
 import json
 
-
-
-
-
 def flatten_repo_data(all_repos_data):
+    """
+    Flatten repository data into a list of strings, each representing an issue or commit.
+
+    Args:
+        all_repos_data (list): List of dictionaries containing data for each repository.
+
+    Returns:
+        list: List of strings, each representing an issue or commit.
+
+    """
     chunks = []
     for repo_data in all_repos_data:
         repo_name = f"repo_name:{repo_data['name']}"
         repo_description = f"repo_description:{repo_data['description']}"
 
+        # Flatten issues data
         for issue in repo_data['issues']:
-            issue_body_cleaned = issue['body'].replace('\n', ' ')
             issue_line = " ".join([
                 "github\n",
                 "Issue:",
@@ -27,7 +33,7 @@ def flatten_repo_data(all_repos_data):
             ])
             chunks.append(issue_line)
 
-
+        # Flatten commits data
         for branch in repo_data['branches']:
             branch_name = f"branch_name:{branch['name']}"
             for commit in branch['commits']:
