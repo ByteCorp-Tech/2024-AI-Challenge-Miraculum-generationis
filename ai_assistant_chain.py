@@ -23,9 +23,6 @@ embeddings = OpenAIEmbeddings()
 global llm
 llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5)
 
-# llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-# llm = ChatOpenAI(model="gpt-4", temperature=0.2)
-
 
 
 def switch_llm(name,model_name):

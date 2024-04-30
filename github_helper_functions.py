@@ -11,7 +11,6 @@ def flatten_repo_data(all_repos_data):
         repo_name = f"repo_name:{repo_data['name']}"
         repo_description = f"repo_description:{repo_data['description']}"
 
-        # Handle issues for the repository
         for issue in repo_data['issues']:
             issue_body_cleaned = issue['body'].replace('\n', ' ')
             issue_line = " ".join([
@@ -28,7 +27,7 @@ def flatten_repo_data(all_repos_data):
             ])
             chunks.append(issue_line)
 
-        # Handle branches and their commits
+
         for branch in repo_data['branches']:
             branch_name = f"branch_name:{branch['name']}"
             for commit in branch['commits']:

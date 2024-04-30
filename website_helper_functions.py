@@ -1,12 +1,5 @@
 import os
 
-
-
-
-
-
-
-
 def custom_chunking_website(directory='website_data'):
     chunks = []
     arbitrary_strings_to_remove = ["Expertise","Other Services","Web 3","EdTech","Commercial Driving","Security","Finance","On-Demand Services","Automation","Services","Work","Web 3","EdTech","Automation","Platforms"

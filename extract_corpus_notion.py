@@ -21,10 +21,10 @@ def fetch_all_pages(notion):
     """Fetch all standalone pages in the workspace and include all page and block data along with the URLs."""
     pages = []
     query_results = notion.search(filter={"value": "page", "property": "object"})["results"]
-    print("Fetching page details...")  # Inform about the start of page fetching
+    print("Fetching page details...")
     for page in query_results:
         page_id = page["id"]
-        print(f"Processing page ID: {page_id}")  # Print each page ID being processed
+        print(f"Processing page ID: {page_id}")
         page_details = {"page_data": page}
         page_url = page.get('url', 'URL not available')
         page_details["content"] = fetch_block_children(page_id, notion)

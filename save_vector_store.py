@@ -55,7 +55,6 @@ website_text=custom_chunking_website('website_data')
 jira_text = flatten_corpus(jira_corpus)
 github_text = flatten_repo_data(github_corpus)
 notion_text=split_chunks(notion_text,1500,300)
-# all_text='\n'.join([github_text,jira_text,website_text])
 
 
 

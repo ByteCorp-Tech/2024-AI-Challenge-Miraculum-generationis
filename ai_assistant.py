@@ -97,14 +97,15 @@ def Page():
         response = retrieval_chain_body.invoke({"input": input})
         context=response.get("context","No context available")
         context_text=""
-        if context[0].metadata["source"]=="notion":
-            context_text=context[0].page_content+"\n"+context[1].page_content
-        else:   
-            for document in context:
-                if document.metadata["source"]!="notion":
-                    context_text+=document.page_content
-        with open('context.txt',"w",encoding="utf-8") as f:
-            f.write(context_text)
+        if context:
+            if context[0].metadata["source"]=="notion":
+                context_text=context[0].page_content+"\n"+context[1].page_content
+            else:   
+                for document in context:
+                    if document.metadata["source"]!="notion":
+                        context_text+=document.page_content
+            with open('context.txt',"w",encoding="utf-8") as f:
+                f.write(context_text)
         urls=extract_urls(context_text)
         response=response["answer"]
         url_markdown="Related Links: <br />"
@@ -123,11 +124,10 @@ def Page():
         set_output_message(response)
         set_loader(False)
         set_processing(False)
-        # 
 
 
     def handle_update(*ignore_args):
-        if not processing:  # Only proceed if not currently processing
+        if not processing:
             set_loader(True)
             thread = threading.Thread(target=query_assistant_body, args=(input_message,))
             thread.start()
@@ -155,15 +155,15 @@ def Page():
             
             
             
-            checkbox_notion = solara.Checkbox(label="Notion", value=notion_checkbox,
+            checkbox_notion = solara.Switch(label="Notion", value=notion_checkbox,
                                               on_value=lambda value: on_value_change_tools(value,"notion"))
-            checkbox_jira = solara.Checkbox(label="Jira", value=jira_checkbox,
+            checkbox_jira = solara.Switch(label="Jira", value=jira_checkbox,
                                             on_value=lambda value: on_value_change_tools(value,"jira"))
-            checkbox_github = solara.Checkbox(label="Github", value=github_checkbox,
+            checkbox_github = solara.Switch(label="Github", value=github_checkbox,
                                               on_value=lambda value: on_value_change_tools(value,"github"))
-            checkbox_website = solara.Checkbox(label="Website", value=website_checkbox,
+            checkbox_website = solara.Switch(label="Website", value=website_checkbox,
                                               on_value=lambda value: on_value_change_tools(value,"website"))
-            checkbox_file = solara.Checkbox(label="File Upload", value=file_upload_checkbox,
+            checkbox_file = solara.Switch(label="File Upload", value=file_upload_checkbox,
                                             on_value=lambda value: on_value_change_file(value))
         
 
