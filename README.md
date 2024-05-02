@@ -91,7 +91,7 @@ That's it! You should now have the chatbot up and running.
 # Methodology and approach
 
 ## Overview
-This document outlines the methodology and approach of the AI Assistant, which leverages Large Language Models (LLMs) to process and respond to various data sources like Jira, GitHub, Notion, and general websites. The system is designed to intelligently manage and utilize data across these platforms, enhancing retrieval capabilities and embedding management.
+This document outlines the methodology and approach of Bytes, which leverages Large Language Models (LLMs) to process and respond to various data sources like Jira, GitHub, Notion, and general websites. The system is designed to intelligently manage and utilize data across these platforms, enhancing retrieval capabilities and embedding management.
 
 ## Components
 Bytes is composed of several key components that interact to process data, generate embeddings, and facilitate intelligent query handling:
