@@ -110,7 +110,8 @@ def on_value_change_file(value):
         github_checkbox.value = False
         website_checkbox.value = False
 
-
+image_url="logo2.png"
+@solara.component
 def Page():
     """
     Solara component for creating an AI Assistant page.
@@ -125,6 +126,7 @@ def Page():
 
     # Set the title of the page
     solara.Title("AI Assistant")
+    solara.Image(image_url,width='300px')
 
     # Initialize state variables for managing UI state
     loader, set_loader = solara.use_state(False)

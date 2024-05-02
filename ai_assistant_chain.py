@@ -2,10 +2,10 @@
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_text_splitter import CharacterTextSplitter, RecursiveJsonSplitter, RecursiveCharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter, RecursiveJsonSplitter, RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_chains.combine_documents import create_stuff_documents_chain
-from langchain_chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores.faiss import DistanceStrategy
