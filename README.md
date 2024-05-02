@@ -9,9 +9,9 @@ https://github.com/ByteCorp-Tech/2024-AI-Challenge-Miraculum-generationis/assets
 
 
 
-# AI Assistant
+# Bytes
 
-AI Assistant is a chat assistant designed to streamline access to various data sources within your company, including Jira, Github, Notion, and your company's website. Users can also upload their own files and leverage the capabilities of the Assistant for them. It is built using Python, with Solara for UI and Langchain for Retrieval Augmented Generation.
+Bytes is a chat assistant designed to streamline access to various data sources within your company, including Jira, Github, Notion, and your company's website. Users can also upload their own files and leverage the capabilities of the Assistant for them. It is built using Python, with Solara for UI and Langchain for Retrieval Augmented Generation.
 
 ## Features
 - **Multi-source Data Retrieval**: Access data from Jira, Github, Notion, and your company's website seamlessly within the chat interface. Users can enable/disable specific sources as per their preference.
@@ -94,7 +94,7 @@ That's it! You should now have the chatbot up and running.
 This document outlines the methodology and approach of the AI Assistant, which leverages Large Language Models (LLMs) to process and respond to various data sources like Jira, GitHub, Notion, and general websites. The system is designed to intelligently manage and utilize data across these platforms, enhancing retrieval capabilities and embedding management.
 
 ## Components
-The AI Assistant is composed of several key components that interact to process data, generate embeddings, and facilitate intelligent query handling:
+Bytes is composed of several key components that interact to process data, generate embeddings, and facilitate intelligent query handling:
 
 ### Data Processing
 - **Corpus Loading**: JSON files representing different data sources (e.g., Notion, Jira, GitHub) are loaded into the system.
