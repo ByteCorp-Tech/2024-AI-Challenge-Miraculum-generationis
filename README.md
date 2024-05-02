@@ -1,6 +1,10 @@
 ## Demo Video
 
-![2024 AI Challenge-Miraculum generationis_demo](2024%20AI%20Challenge-Miraculum%20generationis_demo.mp4)
+<video width="720" controls>
+  <source src="2024 AI Challenge-Miraculum generationis_demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 
 
 
