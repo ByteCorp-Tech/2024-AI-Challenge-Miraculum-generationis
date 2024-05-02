@@ -156,15 +156,19 @@ def Page():
         # Extract context from the response
         context = response.get("context", "No context available")
         context_text = ""
-
+        
         # Process context to extract relevant information
         if context:
-            if context[0].metadata["source"] == "notion":
-                context_text = context[0].page_content + "\n" + context[1].page_content
+            if not file_upload_checkbox.value:
+                if context[0].metadata["source"] == "notion":
+                    context_text = context[0].page_content + "\n" + context[1].page_content
+                else:
+                    for document in context:
+                        if document.metadata["source"] != "notion":
+                            context_text += document.page_content
             else:
                 for document in context:
-                    if document.metadata["source"] != "notion":
-                        context_text += document.page_content
+                    context_text=document.page_content
 
             # Write context to file
             with open('context.txt', "w", encoding="utf-8") as f:
