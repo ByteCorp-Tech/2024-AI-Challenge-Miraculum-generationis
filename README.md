@@ -1,3 +1,10 @@
+## Demo Video
+
+![2024 AI Challenge-Miraculum generationis_demo](2024%20AI%20Challenge-Miraculum%20generationis_demo.mp4)
+
+
+
+
 # AI Assistant
 
 AI Assistant is a chat assistant designed to streamline access to various data sources within your company, including Jira, Github, Notion, and your company's website. Users can also upload their own files and leverage the capabilities of the Assistant for them. It is built using Python, with Solara for UI and Langchain for Retrieval Augmented Generation.
