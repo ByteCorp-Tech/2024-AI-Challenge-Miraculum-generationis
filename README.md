@@ -1,9 +1,9 @@
 ## Demo Video
 
-<video width="720" controls>
-  <source src="2024 AI Challenge-Miraculum generationis_demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
+
+
+https://github.com/ByteCorp-Tech/2024-AI-Challenge-Miraculum-generationis/assets/28065322/edb7520a-a535-4a58-a09c-6fc063eb3ce3
 
 
 
