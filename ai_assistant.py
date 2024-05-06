@@ -11,9 +11,9 @@ import threading
 
 # Initialize reactive variables
 notion_checkbox = solara.reactive(True)
-jira_checkbox = solara.reactive(True)
-github_checkbox = solara.reactive(True)
-website_checkbox = solara.reactive(True)
+jira_checkbox = solara.reactive(False)
+github_checkbox = solara.reactive(False)
+website_checkbox = solara.reactive(False)
 file_upload_checkbox = solara.reactive(False)
 llm = solara.reactive("gemini")
 
@@ -21,7 +21,7 @@ llm = solara.reactive("gemini")
 # Load LLM with default set to gemini-pro and generate retrieval chain using it, using all sources by default
 switch_llm(llm.value, "gemini-pro")
 global retrieval_chain_body
-retrieval_chain_body = load_vector_store('all', ['notion', 'jira', 'github', 'website'])
+retrieval_chain_body = load_vector_store('all', ['notion'])
 
 def on_value_change_tools(value, name):
     """
